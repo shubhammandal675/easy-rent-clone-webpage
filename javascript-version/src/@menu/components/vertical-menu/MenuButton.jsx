@@ -17,7 +17,7 @@ export const menuButtonStyles = props => {
   return css({
     display: 'flex',
     alignItems: 'center',
-    minBlockSize: '30px',
+    minBlockSize: '45px',
     textDecoration: 'none',
     color: 'inherit',
     boxSizing: 'border-box',
@@ -40,7 +40,7 @@ export const menuButtonStyles = props => {
     // All the active styles are applied to the button including menu items or submenu
     [`&.${menuClasses.active}`]: {
       ...(!children && { color: 'white' }),
-      backgroundColor: children ? '#f3f3f3' : '#765feb'
+      backgroundColor: children ? '#f3f3f3' : '#ececec8e'
     }
   })
 }

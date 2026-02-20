@@ -57,9 +57,31 @@ const SubMenuContent = (props, ref) => {
     setMounted(true)
   }, [])
 
+// ... keep all existing imports and logic ...
+
   return (
-    <StyledSubMenuContent ref={ref} level={level} open={open} transitionDuration={transitionDuration} {...rest}>
-      <ul className={styles.ul}>{children}</ul>
+    <StyledSubMenuContent 
+      ref={ref} 
+      level={level} 
+      open={open} 
+      transitionDuration={transitionDuration} 
+      {...rest}
+      // This ensures the submenu container itself doesn't have a background or border line
+      style={{ border: 'none', background: 'transparent' }}
+    >
+      <ul 
+        className={styles.ul}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',         // Slightly smaller gap for sub-items than main items
+          paddingTop: '8px',   // Spacing at the top of the submenu
+          paddingBottom: '8px',
+          listStyle: 'none'
+        }}
+      >
+        {children}
+      </ul>
     </StyledSubMenuContent>
   )
 }

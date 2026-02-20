@@ -7,7 +7,7 @@ export const verticalLayoutClasses = {
   headerDetached: 'ts-vertical-layout-header-detached',
   headerContentCompact: 'ts-vertical-layout-header-content-compact',
   navbar: 'ts-vertical-layout-navbar',
-  navbarContent: 'ts-vertical-layout-navbar-content',
+  navbarContent: 's-vertical-layout-navbar-contentt',
   content: 'ts-vertical-layout-content',
   contentCompact: 'ts-vertical-layout-content-compact',
   footer: 'ts-vertical-layout-footer',

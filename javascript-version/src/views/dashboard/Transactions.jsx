@@ -40,7 +40,7 @@ const data = [
 const Transactions = () => {
   return (
     <Card className='bs-full'>
-      <CardHeader
+      {/* <CardHeader
         title='Transactions'
         action={<OptionMenu iconClassName='text-textPrimary' options={['Refresh', 'Share', 'Update']} />}
         subheader={
@@ -66,7 +66,7 @@ const Transactions = () => {
             </Grid>
           ))}
         </Grid>
-      </CardContent>
+      </CardContent> */}
     </Card>
   )
 }

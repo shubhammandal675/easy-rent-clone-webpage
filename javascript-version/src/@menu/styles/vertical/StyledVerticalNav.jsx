@@ -1,3 +1,5 @@
+'use client'
+
 // Third-party Imports
 import styled from '@emotion/styled'
 
@@ -9,17 +11,18 @@ const StyledVerticalNav = styled.aside`
   inset-block-start: 0;
   block-size: 100dvh;
   z-index: 9;
+  background-color: #ffffff; /* Ensure white background */
 
   /* Transition */
   transition-property: inline-size, min-inline-size, margin-inline-start, inset-inline-start;
   transition-duration: ${({ transitionDuration }) => `${transitionDuration}ms`};
   transition-timing-function: ease-in-out;
 
-  /* Width & Min Width & Margin */
+  /* Width & Min Width */
   inline-size: ${({ width }) => `${width}px`};
   min-inline-size: ${({ width }) => `${width}px`};
 
-  /* Toggled */
+  /* Mobile/Breakpoint View: Sidebar slides out from left */
   &.${verticalNavClasses.breakpointReached} {
     position: fixed;
     block-size: 100%;
@@ -32,11 +35,19 @@ const StyledVerticalNav = styled.aside`
     }
   }
 
-  ${({ width, isBreakpointReached }) =>
+  /* Desktop View: Sidebar collapses to 80px instead of hiding */
+  ${({ isBreakpointReached, collapsedWidth }) =>
     !isBreakpointReached &&
     `
     &.${verticalNavClasses.toggled} {
-      margin-inline-start: -${width}px;
+      /* This is the key change to keep the toggle button visible */
+      inline-size: ${collapsedWidth || 80}px;
+      min-inline-size: ${collapsedWidth || 80}px;
+      
+      /* Hide text labels when collapsed if your CSS handles it */
+      & .ps-menu-label {
+        display: none;
+      }
     }
   `}
 

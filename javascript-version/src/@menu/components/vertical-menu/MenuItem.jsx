@@ -134,7 +134,9 @@ const MenuItem = (props, ref) => {
 
         {/* Menu Item Prefix */}
         {prefix && (
-          <StyledMenuPrefix className={menuClasses.prefix} rootStyles={getMenuItemStyles('prefix')}>
+          <StyledMenuPrefix 
+          className={menuClasses.prefix} 
+          rootStyles={getMenuItemStyles('prefix')}>
             {prefix}
           </StyledMenuPrefix>
         )}

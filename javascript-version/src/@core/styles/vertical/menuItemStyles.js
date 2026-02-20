@@ -47,6 +47,7 @@ const menuItemStyles = theme => {
         }
       })
     }),
+
     icon: ({ level }) => ({
       ...(level === 0 && {
         fontSize: '1.375rem',

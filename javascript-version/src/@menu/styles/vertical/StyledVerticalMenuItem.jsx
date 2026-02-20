@@ -10,6 +10,13 @@ import { menuButtonStyles } from '../../components/vertical-menu/MenuButton'
 const StyledVerticalMenuItem = styled.li`
   position: relative;
   margin-block-start: 4px;
+    font-family: Outfit,Outfit Fallback;
+    font-style: normal;
+        font-size: var(--text-theme-sm);
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+
+
   ${({ menuItemStyles }) => menuItemStyles};
   ${({ rootStyles }) => rootStyles};
 

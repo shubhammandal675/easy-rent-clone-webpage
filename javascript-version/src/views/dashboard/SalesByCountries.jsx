@@ -63,7 +63,7 @@ const data = [
 const SalesByCountries = () => {
   return (
     <Card>
-      <CardHeader
+      {/* <CardHeader
         title='Sales by Countries'
         action={<OptionMenu iconClassName='text-textPrimary' options={['Last 28 Days', 'Last Month', 'Last Year']} />}
       />
@@ -104,7 +104,7 @@ const SalesByCountries = () => {
             </div>
           </div>
         ))}
-      </CardContent>
+      </CardContent> */}
     </Card>
   )
 }

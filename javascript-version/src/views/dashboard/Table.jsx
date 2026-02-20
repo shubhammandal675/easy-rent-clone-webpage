@@ -99,7 +99,7 @@ const rowsData = [
 const Table = () => {
   return (
     <Card>
-      <div className='overflow-x-auto'>
+      {/* <div className='overflow-x-auto'>
         <table className={tableStyles.table}>
           <thead>
             <tr>
@@ -145,7 +145,7 @@ const Table = () => {
             ))}
           </tbody>
         </table>
-      </div>
+      </div> */}
     </Card>
   )
 }

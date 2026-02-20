@@ -39,7 +39,7 @@ const data = [
 const TotalEarning = () => {
   return (
     <Card>
-      <CardHeader
+      {/* <CardHeader
         title='Total Earning'
         action={<OptionMenu iconClassName='text-textPrimary' options={['Last 28 Days', 'Last Month', 'Last Year']} />}
       ></CardHeader>
@@ -80,7 +80,7 @@ const TotalEarning = () => {
             </div>
           ))}
         </div>
-      </CardContent>
+      </CardContent> */}
     </Card>
   )
 }

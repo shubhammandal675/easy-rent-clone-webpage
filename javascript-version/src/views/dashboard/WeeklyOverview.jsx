@@ -86,7 +86,7 @@ const WeeklyOverview = () => {
 
   return (
     <Card>
-      <CardHeader
+      {/* <CardHeader
         title='Weekly Overview'
         action={<OptionsMenu iconClassName='text-textPrimary' options={['Refresh', 'Update', 'Delete']} />}
       />
@@ -105,7 +105,7 @@ const WeeklyOverview = () => {
         <Button fullWidth variant='contained'>
           Details
         </Button>
-      </CardContent>
+      </CardContent> */}
     </Card>
   )
 }
