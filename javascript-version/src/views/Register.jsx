@@ -4,112 +4,215 @@
 import { useState } from 'react'
 
 // Next Imports
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
-import IconButton from '@mui/material/IconButton'
-import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
-import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
+import { Grid, Box, Typography, TextField, IconButton, InputAdornment, Checkbox, Button, FormControlLabel } from '@mui/material'
+
+// Third-party Imports
+import axios from 'axios'
+import { toast, Toaster } from 'react-hot-toast'
 
 // Component Imports
-import Illustrations from '@components/Illustrations'
 import Logo from '@components/layout/shared/Logo'
 
-// Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
-
-const Register = ({ mode }) => {
+const Register = () => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
-
-  // Vars
-  const darkImg = '/images/pages/auth-v1-mask-dark.png'
-  const lightImg = '/images/pages/auth-v1-mask-light.png'
+  const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState({}) // For field-specific errors
+  
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: ''
+  })
 
   // Hooks
-  const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const router = useRouter()
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
+  // Input Handler
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+  }
+
+  // --- VALIDATION LOGIC ---
+  const validateForm = () => {
+    let tempErrors = {}
+    if (!formData.firstName) tempErrors.firstName = "First name is required"
+    if (!formData.lastName) tempErrors.lastName = "Last name is required"
+    if (!formData.email) {
+      tempErrors.email = "Email is required"
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      tempErrors.email = "Email is invalid"
+    }
+    if (!formData.password) {
+      tempErrors.password = "Password is required"
+    } else if (formData.password.length < 6) {
+      tempErrors.password = "Password must be at least 6 characters"
+    }
+    
+    setErrors(tempErrors)
+    return Object.keys(tempErrors).length === 0
+  }
+
+  // --- API CALL TO BACKEND ---
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!validateForm()) return
+
+    setLoading(true)
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/register', formData, {
+        withCredentials: true 
+      })
+
+      if (response.status === 201) {
+        toast.success("Admin Registered Successfully! 🚀")
+        setTimeout(() => router.push('/login'), 2000)
+      }
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || "Registration failed!"
+      toast.error(errorMsg)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <div className='flex flex-col justify-center items-center min-bs-[100dvh] relative p-6'>
-      <Card className='flex flex-col sm:is-[450px]'>
-        <CardContent className='p-6 sm:!p-12'>
-          <Link href='/' className='flex justify-center items-start mbe-6'>
-            <Logo />
-          </Link>
-          <Typography variant='h4'>Adventure starts here 🚀</Typography>
-          <div className='flex flex-col gap-5'>
-            <Typography className='mbs-1'>Make your app management easy and fun!</Typography>
-            <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()} className='flex flex-col gap-5'>
-              <TextField autoFocus fullWidth label='Username' />
-              <TextField fullWidth label='Email' />
-              <TextField
-                fullWidth
-                label='Password'
-                type={isPasswordShown ? 'text' : 'password'}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position='end'>
-                      <IconButton
-                        size='small'
-                        edge='end'
-                        onClick={handleClickShowPassword}
-                        onMouseDown={e => e.preventDefault()}
-                      >
-                        <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
-                      </IconButton>
-                    </InputAdornment>
-                  )
-                }}
+    <Grid container className='min-bs-[100dvh] bg-white'>
+      <Toaster position="top-right" />
+      
+      {/* --- LEFT SECTION: FORM --- */}
+      <Grid item xs={12} md={6} className='flex flex-col justify-center items-center p-6 sm:p-12'>
+        <Box className='is-full max-is-[450px]'>
+          
+    
+
+          <Typography variant='h4' className='mbe-1 font-bold' sx={{ color: '#1a1a1a' }}>Sign Up</Typography>
+          <Typography className='mbe-6 text-textSecondary'>Enter your email and password to sign up!</Typography>
+
+          <form noValidate autoComplete='off' onSubmit={handleSubmit} className='flex flex-col gap-4'>
+            <Box className='flex gap-4'>
+              <TextField 
+                fullWidth label='First Name*' name='firstName'
+                placeholder='Enter your first name' 
+                value={formData.firstName} 
+                onChange={handleInputChange}
+                error={Boolean(errors.firstName)}
+                helperText={errors.firstName}
               />
-              <FormControlLabel
-                control={<Checkbox />}
-                label={
-                  <>
-                    <span>I agree to </span>
-                    <Link className='text-primary' href='/' onClick={e => e.preventDefault()}>
-                      privacy policy & terms
-                    </Link>
-                  </>
-                }
+              <TextField 
+                fullWidth label='Last Name*' name='lastName'
+                placeholder='Enter your last name' 
+                value={formData.lastName} 
+                onChange={handleInputChange}
+                error={Boolean(errors.lastName)}
+                helperText={errors.lastName}
               />
-              <Button fullWidth variant='contained' type='submit'>
-                Sign Up
-              </Button>
-              <div className='flex justify-center items-center flex-wrap gap-2'>
-                <Typography>Already have an account?</Typography>
-                <Typography component={Link} href='/login' color='primary'>
-                  Sign in instead
+            </Box>
+            
+            <TextField 
+              fullWidth label='Email*' name='email'
+              placeholder='example@gmail.com' 
+              value={formData.email} 
+              onChange={handleInputChange}
+              error={Boolean(errors.email)}
+              helperText={errors.email}
+            />
+            
+            <TextField
+              fullWidth
+              label='Password*'
+              name='password'
+              type={isPasswordShown ? 'text' : 'password'}
+              value={formData.password}
+              onChange={handleInputChange}
+              error={Boolean(errors.password)}
+              helperText={errors.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position='end'>
+                    <IconButton size='small' onClick={handleClickShowPassword}>
+                      <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+            />
+
+            <FormControlLabel
+              className='mbe-2'
+              control={<Checkbox size='small' defaultChecked />}
+              label={
+                <Typography variant='body2'>
+                  By creating an account means you agree to the <strong>Terms and Conditions</strong>, and our <strong>Privacy Policy</strong>
                 </Typography>
-              </div>
-              <Divider className='gap-3'>Or</Divider>
-              <div className='flex justify-center items-center gap-2'>
-                <IconButton size='small' className='text-facebook'>
-                  <i className='ri-facebook-fill' />
-                </IconButton>
-                <IconButton size='small' className='text-twitter'>
-                  <i className='ri-twitter-fill' />
-                </IconButton>
-                <IconButton size='small' className='text-github'>
-                  <i className='ri-github-fill' />
-                </IconButton>
-                <IconButton size='small' className='text-googlePlus'>
-                  <i className='ri-google-fill' />
-                </IconButton>
-              </div>
-            </form>
-          </div>
-        </CardContent>
-      </Card>
-      <Illustrations maskImg={{ src: authBackground }} />
-    </div>
+              }
+            />
+
+            <Button 
+              fullWidth variant='contained' type='submit' size='large'
+              disabled={loading}
+              sx={{ 
+                bgcolor: '#2d2d2d', 
+                '&:hover': { bgcolor: '#1a1a1a' },
+                textTransform: 'none',
+                fontWeight: 600,
+                py: 1.5,
+                borderRadius: '8px'
+              }}
+            >
+              {loading ? 'Registering...' : 'Sign Up'}
+            </Button>
+
+            <div className='flex justify-center items-center flex-wrap gap-1 mt-2'>
+              <Typography variant='body2'>Already have an account?</Typography>
+              <Typography component={Link} href='/login' variant='body2' className='font-bold text-primary'>
+                Sign In
+              </Typography>
+            </div>
+          </form>
+        </Box>
+      </Grid>
+
+      {/* --- RIGHT SECTION: BRANDING (Event Hero Style) --- */}
+      <Grid 
+        item xs={false} md={6} 
+        className='hidden md:flex flex-col justify-center items-center bg-[#fff5eb] relative'
+        sx={{
+          backgroundImage: 'radial-gradient(#d1d1d1 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
+        }}
+      >
+        <Box className='text-center p-10'>
+          <Box 
+            component='img' 
+            src='/images/logos/navlogo.webp' 
+            className='rounded-xl shadow-xl mbe-6'
+            sx={{ 
+                width: 320, 
+                height: 320, 
+                objectFit: 'cover',
+                border: '1px solid #eee' 
+            }}
+          />
+          <Typography variant='h5' className='font-bold' sx={{ color: '#333' }}>
+            Easy Rent Admin Dashboard
+          </Typography>
+        </Box>
+      </Grid>
+    </Grid>
   )
 }
 

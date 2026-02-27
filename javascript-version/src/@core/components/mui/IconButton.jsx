@@ -45,7 +45,7 @@ const CustomIconButton = styled(MuiButton)(({ color, size, theme, variant }) => 
       }),
       '&.Mui-disabled': {
         opacity: 0.45,
-        color: 'var(--mui-palette-action-active)'
+        // color: 'var(--mui-palette-action-active)'
       },
       ...(variant === 'outlined' && {
         border: 'none !important',

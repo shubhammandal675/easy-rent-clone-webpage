@@ -8,115 +8,191 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
-import IconButton from '@mui/material/IconButton'
-import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
-import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
+import { Grid, Box, Typography, TextField, IconButton, InputAdornment, Checkbox, Button, FormControlLabel } from '@mui/material'
+
+// Third-party Imports
+import axios from 'axios'
+import { toast, Toaster } from 'react-hot-toast'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'
-import Illustrations from '@components/Illustrations'
 
-// Config Imports
-import themeConfig from '@configs/themeConfig'
-
-// Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
-
-const Login = ({ mode }) => {
+const Login = () => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
-
-  // Vars
-  const darkImg = '/images/pages/auth-v1-mask-dark.png'
-  const lightImg = '/images/pages/auth-v1-mask-light.png'
+  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  
+  // --- ERROR STATE ---
+  const [errors, setErrors] = useState({}) 
 
   // Hooks
   const router = useRouter()
-  const authBackground = useImageVariant(mode, lightImg, darkImg)
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const handleSubmit = e => {
+  // --- VALIDATION LOGIC ---
+  const validateForm = () => {
+    let tempErrors = {}
+    if (!email) {
+      tempErrors.email = "Email is required"
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      tempErrors.email = "Please enter a valid email"
+    }
+    if (!password) {
+      tempErrors.password = "Password is required"
+    }
+    
+    setErrors(tempErrors)
+    return Object.keys(tempErrors).length === 0
+  }
+
+  // --- API CALL TO BACKEND ---
+  const handleLogin = async (e) => {
     e.preventDefault()
-    router.push('/')
+    
+    // Pehle local validation check karein
+    if (!validateForm()) return
+
+    setLoading(true)
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', 
+        { email, password }, 
+        { withCredentials: true } 
+      )
+
+      if (response.status === 200) {
+        toast.success("Welcome Back! 👋🏻")
+        localStorage.setItem('userEmail', response.data.user.email)
+        setTimeout(() => router.push('/'), 1500)
+      }
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || "Invalid credentials"
+      
+      // Backend error ko field ke niche dikhane ke liye
+      if (errorMsg.toLowerCase().includes('email')) {
+        setErrors({ email: errorMsg })
+      } else if (errorMsg.toLowerCase().includes('password')) {
+        setErrors({ password: errorMsg })
+      } else {
+        toast.error(errorMsg)
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className='flex flex-col justify-center items-center min-bs-[100dvh] relative p-6'>
-      <Card className='flex flex-col sm:is-[450px]'>
-        <CardContent className='p-6 sm:!p-12'>
-          <Link href='/' className='flex justify-center items-center mbe-6'>
-            <Logo />
-          </Link>
-          <div className='flex flex-col gap-5'>
-            <div>
-              <Typography variant='h4'>{`Welcome to ${themeConfig.templateName}!👋🏻`}</Typography>
-              <Typography className='mbs-1'>Please sign-in to your account and start the adventure</Typography>
-            </div>
-            <form noValidate autoComplete='off' onSubmit={handleSubmit} className='flex flex-col gap-5'>
-              <TextField autoFocus fullWidth label='Email' />
-              <TextField
-                fullWidth
-                label='Password'
-                id='outlined-adornment-password'
-                type={isPasswordShown ? 'text' : 'password'}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position='end'>
-                      <IconButton
-                        size='small'
-                        edge='end'
-                        onClick={handleClickShowPassword}
-                        onMouseDown={e => e.preventDefault()}
-                      >
-                        <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
-                      </IconButton>
-                    </InputAdornment>
-                  )
-                }}
+    <Grid container className='min-bs-[100dvh] bg-backgroundPaper'>
+      <Toaster position="top-right" />
+      
+      <Grid item xs={12} md={6} className='flex flex-col justify-center items-center p-6 sm:p-12'>
+        <Box className='is-full max-is-[400px]'>
+          
+          <Typography variant='h4' className='mbe-1 font-bold'>Login</Typography>
+          <Typography className='mbe-6 text-textSecondary'>Please sign-in to your account to continue</Typography>
+
+          <form noValidate autoComplete='off' onSubmit={handleLogin} className='flex flex-col gap-5'>
+            <TextField 
+              autoFocus 
+              fullWidth 
+              size='small' 
+              label='Email' 
+              placeholder='admin@easyrent.com'
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                if (errors.email) setErrors({ ...errors, email: '' })
+              }}
+              // --- ERROR PROPS ---
+              error={Boolean(errors.email)}
+              helperText={errors.email}
+            />
+            
+            <TextField
+              fullWidth
+              size='small'
+              label='Password'
+              placeholder='········'
+              type={isPasswordShown ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                if (errors.password) setErrors({ ...errors, password: '' })
+              }}
+              // --- ERROR PROPS ---
+              error={Boolean(errors.password)}
+              helperText={errors.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position='end'>
+                    <IconButton size='small' edge='end' onClick={handleClickShowPassword}>
+                      <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+            />
+
+            <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
+              <FormControlLabel 
+                control={<Checkbox size='small' />} 
+                label={<Typography variant='body2'>Remember me</Typography>} 
               />
-              <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
-                <FormControlLabel control={<Checkbox />} label='Remember me' />
-                <Typography className='text-end' color='primary' component={Link} href='/forgot-password'>
-                  Forgot password?
-                </Typography>
-              </div>
-              <Button fullWidth variant='contained' type='submit'>
-                Log In
-              </Button>
-              <div className='flex justify-center items-center flex-wrap gap-2'>
-                <Typography>New on our platform?</Typography>
-                <Typography component={Link} href='/register' color='primary'>
-                  Create an account
-                </Typography>
-              </div>
-              <Divider className='gap-3'>or</Divider>
-              <div className='flex justify-center items-center gap-2'>
-                <IconButton size='small' className='text-facebook'>
-                  <i className='ri-facebook-fill' />
-                </IconButton>
-                <IconButton size='small' className='text-twitter'>
-                  <i className='ri-twitter-fill' />
-                </IconButton>
-                <IconButton size='small' className='text-github'>
-                  <i className='ri-github-fill' />
-                </IconButton>
-                <IconButton size='small' className='text-googlePlus'>
-                  <i className='ri-google-fill' />
-                </IconButton>
-              </div>
-            </form>
-          </div>
-        </CardContent>
-      </Card>
-      <Illustrations maskImg={{ src: authBackground }} />
-    </div>
+              <Typography variant='body2' component={Link} href='/forgot-password' color='primary' className='font-medium'>
+                Forgot password?
+              </Typography>
+            </div>
+
+            <Button 
+              fullWidth 
+              variant='contained' 
+              type='submit' 
+              size='large'
+              disabled={loading}
+              sx={{ bgcolor: '#4c4e64', '&:hover': { bgcolor: '#3e4052' } }}
+              className='py-2.5 font-bold normal-case'
+            >
+              {loading ? 'Logging in...' : 'Log In'}
+            </Button>
+
+            <div className='flex justify-center items-center flex-wrap gap-2'>
+              <Typography variant='body2'>New on our platform?</Typography>
+              <Typography component={Link} href='/register' variant='body2' color='primary' className='font-bold'>
+                Create an account
+              </Typography>
+            </div>
+          </form>
+        </Box>
+      </Grid>
+
+     {/* --- RIGHT SECTION: BRANDING (Event Hero Style) --- */}
+      <Grid 
+        item xs={false} md={6} 
+        className='hidden md:flex flex-col justify-center items-center bg-[#fff5eb] relative'
+        sx={{
+          backgroundImage: 'radial-gradient(#d1d1d1 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
+        }}
+      >
+        <Box className='text-center p-10'>
+          <Box 
+            component='img' 
+            src='/images/logos/navlogo.webp' 
+            className='rounded-xl shadow-xl mbe-6'
+            sx={{ 
+                width: 320, 
+                height: 320, 
+                objectFit: 'cover',
+                border: '1px solid #eee' 
+            }}
+          />
+          <Typography variant='h5' className='font-bold' sx={{ color: '#333' }}>
+            Easy Rent Admin Dashboard
+          </Typography>
+        </Box>
+      </Grid>
+    </Grid>
   )
 }
 

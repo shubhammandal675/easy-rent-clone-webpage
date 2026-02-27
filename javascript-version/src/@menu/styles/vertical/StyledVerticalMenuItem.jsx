@@ -17,6 +17,7 @@ const StyledVerticalMenuItem = styled.li`
     font-weight: var(--font-weight-medium);
 
 
+
   ${({ menuItemStyles }) => menuItemStyles};
   ${({ rootStyles }) => rootStyles};
 

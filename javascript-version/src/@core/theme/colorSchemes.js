@@ -153,7 +153,7 @@ const colorSchemes = () => {
         customColors: {
           bodyBg: '#F4F5FA',
           chatBg: '#F7F6FA',
-          greyLightBg: '#FAFAFA',
+          greyLightBg: '#e04141ff',
           inputBorder: `rgb(var(--mui-mainColorChannels-light) / 0.22)`,
           tableHeaderBg: '#F6F7FB',
           tooltipText: '#FFFFFF',
@@ -290,7 +290,7 @@ const colorSchemes = () => {
           successBg: 'var(--mui-palette-success-mainOpacity)'
         },
         SnackbarContent: {
-          bg: '#F7F4FF',
+          bg: '#401f99ff',
           color: 'var(--mui-palette-background-paper)'
         },
         Switch: {

@@ -1,88 +1,64 @@
-// MUI Imports
-import { lighten } from '@mui/material/styles'
-
-// Util Imports
+// Style Imports
 import { menuClasses } from '@menu/utils/menuClasses'
 
-const menuItemStyles = theme => {
+const menuItemStyles = (theme) => {
+  const activeHoverColor = '#07b2b4' // Aapka Teal color
+
   return {
     root: {
       marginBlockStart: theme.spacing(1.5),
-      [`&.${menuClasses.subMenuRoot}.${menuClasses.open} > .${menuClasses.button}, &.${menuClasses.subMenuRoot} > .${menuClasses.button}.${menuClasses.active}`]:
-        {
-          backgroundColor: 'var(--mui-palette-action-selected) !important'
+      
+      // --- ACTIVE STATE: Ye hamesha highlight rahega ---
+      [`& .${menuClasses.button}.${menuClasses.active}`]: {
+        backgroundColor: `${activeHoverColor} !important`,
+        color: '#ffffff !important',
+        borderRadius: '10px !important', 
+        marginLeft: '18px !important',
+        marginRight: '15px !important',
+        boxShadow: '0px 4px 10px rgba(7, 178, 180, 0.3)', 
+        
+        [`& .${menuClasses.icon}`]: { 
+          color: '#ffffff !important' 
         },
-      [`&.${menuClasses.disabled} > .${menuClasses.button}`]: {
-        color: 'var(--mui-palette-text-disabled)',
-        [`& .${menuClasses.icon}`]: {
-          color: 'inherit'
-        }
-      },
-      [`&:not(.${menuClasses.subMenuRoot}) > .${menuClasses.button}.${menuClasses.active}`]: {
-        color: 'var(--mui-palette-primary-contrastText)',
-        background:
-          theme.direction === 'ltr'
-            ? `linear-gradient(270deg, var(--mui-palette-primary-main), ${lighten(theme.palette.primary.main, 0.5)} 100%)`
-            : `linear-gradient(270deg, ${lighten(theme.palette.primary.main, 0.5)}, var(--mui-palette-primary-main) 100%)`,
-        [`& .${menuClasses.icon}`]: {
-          color: 'inherit'
+        [`& .${menuClasses.label}`]: { 
+          color: '#ffffff !important',
+          fontWeight: '600 !important' 
         }
       }
     },
-    button: ({ active }) => ({
-      paddingBlock: theme.spacing(2),
-      '&:has(.MuiChip-root)': {
-        paddingBlock: theme.spacing(1.75)
-      },
-      paddingInlineStart: theme.spacing(5.5),
-      paddingInlineEnd: theme.spacing(3.5),
-      borderStartEndRadius: 50,
-      borderEndEndRadius: 50,
-      ...(!active && {
-        '&:hover, &:focus-visible': {
-          backgroundColor: 'var(--mui-palette-action-hover)'
-        },
-        '&[aria-expanded="true"]': {
-          backgroundColor: 'var(--mui-palette-action-selected)'
-        }
-      })
-    }),
+    button: {
+      paddingBlock: theme.spacing(2.5),
+      marginLeft: '15px',
+      marginRight: '15px',
+      transition: 'all 0.2s ease-in-out',
+      borderRadius: '10px !important',
+      color: 'rgba(255, 255, 255, 0.7)', // Default text color
 
-    icon: ({ level }) => ({
-      ...(level === 0 && {
-        fontSize: '1.375rem',
-        marginInlineEnd: theme.spacing(2)
-      }),
-      ...(level > 0 && {
-        fontSize: '0.75rem',
-        color: 'var(--mui-palette-text-secondary)',
-        marginInlineEnd: theme.spacing(3.5)
-      }),
-      ...(level === 1 && {
-        marginInlineStart: theme.spacing(1.5)
-      }),
-      ...(level > 1 && {
-        marginInlineStart: theme.spacing(1.5 + 2.5 * (level - 1))
-      }),
-      '& > i, & > svg': {
-        fontSize: 'inherit'
-      }
-    }),
-    prefix: {
-      marginInlineEnd: theme.spacing(2)
-    },
-    suffix: {
-      marginInlineStart: theme.spacing(2)
-    },
-    subMenuExpandIcon: {
-      fontSize: '1.375rem',
-      marginInlineStart: theme.spacing(2),
-      '& i, & svg': {
-        fontSize: 'inherit'
+      // --- HOVER STATE: Sirf tab dikhega jab item active NA HO ---
+      [`&:not(.${menuClasses.active}):hover`]: {
+        backgroundColor: 'rgba(255, 255, 255, 0.08) !important', // Halki white jhalak
+        color: '#ffffff !important',
+        [`& .${menuClasses.icon}`]: { color: '#ffffff !important' },
+        [`& .${menuClasses.label}`]: { color: '#ffffff !important' }
       }
     },
-    subMenuContent: {
-      backgroundColor: 'transparent'
+    icon: {
+      fontSize: '1.4rem',
+      minWidth: '35px',
+      color: 'inherit', // Button ka color inherit karega
+      paddingRight: '10px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft:'-16px !important'
+    },
+    label: {
+      fontFamily: 'Outfit, sans-serif',
+      fontSize: '0.85rem',
+      fontWeight: 500,
+      color: 'inherit', // Button ka color inherit karega
+      whiteSpace: 'normal',
+      lineHeight: 1.2
     }
   }
 }

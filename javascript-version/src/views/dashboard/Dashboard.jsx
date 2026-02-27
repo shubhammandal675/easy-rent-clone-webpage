@@ -15,32 +15,40 @@ const Award = () => {
   ]
 
   return (
-    /* Step 1: The Outer Wrapper 
-       Matches the background color and provides the side padding (px-6).
-    */
-    <div className='w-full bg-[#FFF1E6] min-h-screen px-6 py-8 flex justify-center'>
-      
-      {/* Step 2: The Grid Container
-         'disableEqualOverflow' or manually setting margin to 0 is key here.
-         MUI Grids usually have a -24px margin that 'drops' the content off the edge.
-      */}
+    <div className='w-full min-h-screen px-6 py-8 flex justify-center'>
       <Grid 
         container 
         spacing={6} 
         sx={{ 
           width: '100%',
-          maxWidth: '1600px', // Matches standard dashboard widths
-          margin: 0,           // Fixes the 'drop' issue by zeroing negative margins
+          maxWidth: '1600px',
+          margin: 0,
           '& > .MuiGrid-item': {
-            // Ensures internal spacing is mathematically identical
             paddingTop: '24px !important',
             paddingLeft: '24px !important'
           }
         }}
       >
-        {/* Statistics Section (3 items per row) */}
+        {/* Statistics Section */}
         {statsData.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
+          <Grid 
+            item 
+            xs={12} 
+            sm={6} 
+            md={4} 
+            key={index}
+            // sx={{
+            //   /* Gray Box Styling */
+            //   '& > div': { 
+            //     backgroundColor: '#e4e7ec', // Light gray color
+            //     transition: 'all 0.3s ease',
+            //     '&:hover': {
+            //       backgroundColor: '#eeeeee', // Hover par thoda dark gray
+
+            //     }
+            //   }
+            // }}
+          >
             <StatCard 
               title={stat.title} 
               value={stat.value} 
@@ -49,9 +57,11 @@ const Award = () => {
           </Grid>
         ))}
 
-        {/* Chart Section (Full width below cards) */}
+        {/* Chart Section */}
         <Grid item xs={12}>
-          <MonthlySalesChart />
+          <div style={{ backgroundColor: '#f5f5f5', borderRadius: '12px',  }}>
+             <MonthlySalesChart />
+          </div>
         </Grid>
       </Grid>
     </div>

@@ -111,3 +111,43 @@ code {
   background-color: rgb(var(--mui-palette-info-mainChannel) / 0.08);
   border: 0;
 }
+
+.mui-wsayu5 .ts-vertical-nav-header {
+    padding-block: 1.25rem;
+    padding-inline: 1.375rem 1rem;
+    background-color: rgb(3, 77, 79);
+}
+
+.mui-1r0l92y {
+    background-color: rgb(3 77 79); }
+
+
+.mui-wsayu5 .ts-vertical-nav-bg-color-container{
+  background-color: rgb(3 77 79);
+}
+
+.mui-1cr1oom{
+  border-inline-end: none;
+}
+
+
+/* Tiptap Editor Base Styling */
+.ProseMirror {
+  min-height: 300px;
+  outline: none;
+}
+
+.ProseMirror p { margin: 10px 0; }
+.ProseMirror h2 { font-size: 1.5rem; font-weight: 700; margin-top: 20px; }
+.ProseMirror ul { padding-left: 25px; list-style-type: disc; }
+
+
+.mui-1du1qxe.ts-open>.ts-menu-button {
+    background-color: #06f3f980;
+}
+
+.styles_ul__8V1vZ{
+  gap:0px !important;
+  padding-top:0px !important;
+  padding-bottom:0px !important;
+}

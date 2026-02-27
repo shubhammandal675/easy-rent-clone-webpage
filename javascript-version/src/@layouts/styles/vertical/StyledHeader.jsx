@@ -14,6 +14,7 @@ const StyledHeader = styled.header`
   inline-size: 100%;
   flex-shrink: 0;
   min-block-size: var(--header-height);
+  
 
   .${verticalLayoutClasses.navbar} {
     position: relative;
