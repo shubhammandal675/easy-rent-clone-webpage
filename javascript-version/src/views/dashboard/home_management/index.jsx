@@ -1,62 +1,41 @@
 'use client'
-
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Grid from '@mui/material/Grid'
 import { Toaster, toast } from 'react-hot-toast'
-import axios from 'axios'
 import TopCategories from './TopCategories'
 import CategoryOrder from './CategoryOrder'
 
-const outfitFont = { fontFamily: 'Outfit, Outfit Fallback, sans-serif' }
-
 const HomeManagementView = () => {
-  const [categories, setCategories] = useState([])
+  // Initial Dummy Data (API Friendly format)
+  const [categories, setCategories] = useState([
+    { id: '1', name: 'Electronics_test1' },
+    { id: '2', name: 'Bakeware' },
+    { id: '3', name: 'Cutlery' },
+    { id: '4', name: 'Dinnerware' },
+    { id: '5', name: 'Table Accessories' },
+    { id: '6', name: 'Macbook Pro' }
+  ])
   const [loading, setLoading] = useState(false)
 
-  // 1. Fetch data from backend on mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get('http://localhost:5000/api/home/categories')
-        if (res.data.categories) setCategories(res.data.categories)
-      } catch (err) {
-        console.error("Fetch error:", err)
-      }
-    }
-    fetchData()
-  }, [])
-
-  // 2. Logic: Add Category (Dropdown se)
+  // 1. Add Logic: Jab Search box se select ho
   const handleAdd = (name) => {
-    if (!name) return
-    if (categories.length >= 10) {
-      return toast.error("Maximum 10 categories allowed")
-    }
-    // Duplicate check
-    if (categories.find(c => c.name === name)) {
-      return toast.error("Already added!")
-    }
-    const newItem = { id: Date.now().toString(), name }
-    setCategories(prev => [...prev, newItem])
+    if (categories.length >= 10) return toast.error("Maximum 10 categories allowed")
+    const newEntry = { id: Date.now().toString(), name }
+    setCategories(prev => [...prev, newEntry])
+    toast.success(`${name} added!`)
   }
 
-  // 3. Logic: Remove Category
+  // 2. Remove Logic
   const handleRemove = (id) => {
     setCategories(prev => prev.filter(cat => cat.id !== id))
   }
 
-  // 4. Logic: Reorder
-  const handleReorder = (newList) => {
-    setCategories(newList)
-  }
-
-  // 5. Logic: Final Save to Backend
-  const handleSaveAll = async () => {
+  // 3. Save Logic: Backend connect karne ke liye ready
+  const handleSave = async () => {
     setLoading(true)
     try {
-      await axios.post('http://localhost:5000/api/home/update-categories', {
-        categories: categories
-      })
+      console.log("Saving to DB:", categories) // Payload for your API
+      await new Promise(res => setTimeout(res, 1000)) // Fake Delay for UI feel
       toast.success("Settings saved successfully! 🚀")
     } catch (err) {
       toast.error("Failed to save settings")
@@ -66,23 +45,23 @@ const HomeManagementView = () => {
   }
 
   return (
-    <Grid container spacing={6} sx={{ ...outfitFont }}>
+    <Grid container spacing={6}>
       <Toaster position="top-right" />
       <Grid item xs={12}>
         <TopCategories 
           categories={categories} 
           onAdd={handleAdd} 
           onRemove={handleRemove} 
-          onSave={handleSaveAll}
+          onSave={handleSave}
           loading={loading}
         />
       </Grid>
       <Grid item xs={12}>
         <CategoryOrder 
           categories={categories} 
-          onReorder={handleReorder} 
+          onReorder={setCategories} 
           onRemove={handleRemove} 
-          onSave={handleSaveAll}
+          onSave={handleSave}
           loading={loading}
         />
       </Grid>

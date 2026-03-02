@@ -1,71 +1,72 @@
 'use client'
-import { Card, CardHeader, CardContent, Chip, Button, Select, MenuItem, Typography, Box } from '@mui/material'
+import { Card, CardContent, Chip, Button, Typography, Box, Autocomplete, TextField, InputAdornment } from '@mui/material'
 
-const outfitFont = { fontFamily: 'Outfit, Outfit Fallback, sans-serif' }
+const outfitFont = { fontFamily: 'Outfit, sans-serif' }
 
 const TopCategories = ({ categories = [], onAdd, onRemove, onSave, loading }) => {
-  const options = ['Electronics_test1', 'Bakeware', 'Cutlery', 'Table Accessories', 'Dinnerware', 'Macbook Pro']
   
-  // Filter options: jo add ho chuke hain wo list mein na dikhein
-  const filteredOptions = options.filter(opt => !categories.find(c => c.name === opt))
+  const MASTER_LIST = ['Electronics_test1', 'Bakeware', 'Cutlery', 'Table Accessories', 'Dinnerware', 'Macbook Pro', 'Kitchenware', 'Furniture']
 
   return (
-    <Card sx={{ mb: 6, ...outfitFont }}>
-      <CardHeader
-        title={<Typography variant="h6" sx={{ ...outfitFont, fontWeight: 600 }}>Top 10 Categories</Typography>}
-        subheader={<Typography variant="body2" sx={outfitFont}>You can select up to 10 categories</Typography>}
-        action={
-          <Select
-            value=""
-            displayEmpty
-            size='small'
-            sx={{ minWidth: 200, ...outfitFont }}
-            onChange={(e) => onAdd(e.target.value)}
-            disabled={loading}
-          >
-            <MenuItem value="" disabled sx={outfitFont}>Select Category</MenuItem>
-            {filteredOptions.map(opt => (
-              <MenuItem key={opt} value={opt} sx={outfitFont}>{opt}</MenuItem>
-            ))}
-          </Select>
-        }
-      />
-      <CardContent>
+    <Card sx={{ mb: 6, ...outfitFont, boxShadow: '0px 4px 18px 0px rgba(47, 43, 61, 0.1)', borderRadius: '10px' }}>
+      <Box sx={{ p: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: '#4c4e64de', ...outfitFont }}>Top 10 Categories</Typography>
+          <Typography variant="body2" sx={{ color: '#4c4e64ad', ...outfitFont }}>You can select up to 10 categories</Typography>
+        </Box>
+
+
+        <Autocomplete
+          size="small"
+          options={MASTER_LIST}
+          openOnFocus 
+          autoHighlight
+          value={null}
+          onChange={(event, newValue) => {
+            if (newValue && !categories.find(c => c.name === newValue)) onAdd(newValue)
+          }}
+          renderInput={(params) => (
+            <TextField 
+              {...params} 
+              label="Select Category" 
+              sx={{ 
+                minWidth: 220, 
+                ...outfitFont,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '8px',
+                  '&.Mui-focused fieldset': { borderColor: '#9155FD' } 
+                },
+                '& .MuiInputLabel-root.Mui-focused': { color: '#9155FD' }
+              }}
+            />
+          )}
+        />
+      </Box>
+
+      <CardContent sx={{ pt: 0 }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 4 }}>
           {categories.map(cat => (
             <Chip
               key={cat.id}
               label={cat.name}
-              deleteIcon={<i className='ri-close-line ' style={{ fontSize: '18px' , color:'#FF4C51' }} />}
               onDelete={() => onRemove(cat.id)}
-              variant='filled'
-              sx={{
-                ...outfitFont,
-                backgroundColor: '#f3f4f6',
-                color: '#4b5563',
-                borderRadius: '6px',
-                fontWeight: 500,
-              }}
+              deleteIcon={<i className='ri-close-line' style={{ color: '#ff4d49' }} />}
+              sx={{ ...outfitFont, backgroundColor: '#F4F5FA', borderRadius: '6px', fontWeight: 500 }}
             />
           ))}
         </Box>
-        <div className='flex justify-end'>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button 
             variant='contained' 
             onClick={onSave}
-            disabled={loading}
-            sx={{ 
-              backgroundColor: '#22a6b3', 
-              ...outfitFont,
-              textTransform: 'none',
-              '&:hover': { backgroundColor: '#1b858f' }
-            }}
+            sx={{ backgroundColor: '#26C6DA', textTransform: 'none', fontWeight: 600, px: 6, borderRadius: '8px', ...outfitFont }}
           >
-            {loading ? 'Saving...' : 'Save'}
+            Save
           </Button>
-        </div>
+        </Box>
       </CardContent>
     </Card>
   )
 }
+
 export default TopCategories

@@ -25,7 +25,7 @@ import { defaultBreakpoints, verticalNavToggleDuration } from '../../defaultConf
 const VerticalNav = props => {
   // Props
   const {
-    width = 260,
+    width = 265,
     breakpoint = 'lg',
     customBreakpoint,
     breakpoints,
