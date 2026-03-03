@@ -2,10 +2,10 @@
 import React, { useState } from 'react'
 import { Box, Typography, Button, Stepper, Step, StepLabel, Card, Stack, Snackbar, Alert } from '@mui/material'
 import Step1 from './AddStepsPage/Step1PersonalInfo'
-import Step2 from './AddStepsPage/Step2CompanyDetails'
-import Step3 from './AddStepsPage/Step3CompanyAddress'
-import Step4 from './AddStepsPage/Step4DeliveryDetails'
-import Step5 from './AddStepsPage/Step5Verification'
+import Step2 from './AddStepsPage/Step2IdentityDetails'
+import Step3 from './AddStepsPage/Step3PartnerAddress'
+import Step4 from './AddStepsPage/Step4VehicleDetails'
+import Step5 from './AddStepsPage/Step5Review'
 
 const steps = ['Personal Info', 'Company Details', 'Company Address', 'Delivery Details', 'Business Verification']
 

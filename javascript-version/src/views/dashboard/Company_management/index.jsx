@@ -6,23 +6,46 @@ import EditPage from './EditPage'
 import ViewPage from './ViewPage'
 
 const CompanyManagement = () => {
-  // Views: 'list', 'add', 'edit', 'view'
   const [view, setView] = useState('list') 
   const [selectedData, setSelectedData] = useState(null)
 
-  // Function to handle Back to List
+  // Dummy data
+ const [companies, setCompanies] = useState([
+        { id: 1, name: 'Ram kast', email: 'ram@grr.la', number: '+91 916754356435', status: 'ReApprove', active: true },
+        { id: 2, name: 'Naman Sharma', email: 'naman.s@mailinator.com', number: '+91 3636363636', status: 'Buttons', active: true },
+        { id: 3, name: 'Ohyod Kxhhd', email: 'ohyod.dev@testmail.com', number: '+91 2134994846', status: 'Buttons', active: false },
+        { id: 4, name: 'Urban Rentals', email: 'contact@urbanrent.in', number: '+91 9876543210', status: 'Pending', active: true },
+        { id: 5, name: 'Skyline Corp', email: 'info@skyline.com', number: '+91 6496494649', status: 'Pending', active: true },
+        { id: 6, name: ' Gupta', email: 'gupta.h@mailinator.com', number: '+91 5946494346', status: 'ReApprove', active: false },
+        { id: 7, name: 'Blue Wave Tech', email: 'support@bluewave.io', number: '+91 1234567896', status: 'Pending', active: true },
+        { id: 8, name: 'Apex Logistics', email: 'admin@apexlog.com', number: '+91 11234567890', status: 'Buttons', active: true },
+        { id: 9, name: 'Global Solutions', email: 'global@bizmail.com', number: '+91 3565959659', status: 'Pending', active: false },
+        { id: 10, name: 'NexGen Media', email: 'hello@nexgen.com', number: '+91 9111111222', status: 'Pending', active: true },
+        { id: 11, name: 'Priya Enterprises', email: 'priya.ent@yahoo.com', number: '+91 9988776655', status: 'ReApprove', active: true },
+        { id: 12, name: 'Viking Traders', email: 'viking@trade.net', number: '+91 8877665544', status: 'Buttons', active: false },
+        { id: 13, name: 'Swift Delivery', email: 'swift@delivery.com', number: '+91 7766554433', status: 'Pending', active: true }
+    ]);
+
   const handleBack = () => {
     setView('list')
     setSelectedData(null)
+  }
+
+  // Same Delete Method as Customer Code
+  const handleDelete = (id) => {
+    setCompanies(prev => prev.filter(item => item.id !== id))
   }
 
   return (
     <>
       {view === 'list' && (
         <CompanyList 
+          companies={companies}
+          setCompanies={setCompanies}
           onAdd={() => setView('add')} 
           onEdit={(data) => { setSelectedData(data); setView('edit'); }}
           onView={(data) => { setSelectedData(data); setView('view'); }}
+          onDelete={handleDelete}
         />
       )}
 

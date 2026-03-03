@@ -1,30 +1,86 @@
 'use client'
-import React from 'react'
-import { Box, Typography, Button, Grid, Card, TextField, Avatar, Divider } from '@mui/material'
+import React, { useState } from 'react'
+import { Box, Typography, Button, Stepper, Step, StepLabel, Card, Stack } from '@mui/material'
+import Step1 from './AddStepsPage/Step1PersonalInfo'
+import Step2 from './AddStepsPage/Step2CompanyDetails'
+import Step3 from './AddStepsPage/Step3CompanyAddress'
+import Step4 from './AddStepsPage/Step4DeliveryDetails'
+import Step5 from './AddStepsPage/Step5Verification'
+
+const steps = ['Personal Info', 'Company Details', 'Company Address', 'Delivery Details', 'Business Verification']
 
 const ViewPage = ({ data, onBack }) => {
+  const [activeStep, setActiveStep] = useState(0)
+
+  const [formData] = useState(() => {
+    const nameParts = data?.name ? data.name.split(' ') : ['', ''];
+    return {
+      ...data,
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' ') || '',
+      contactNumber: data?.number || '',
+      companyName: data?.name || ''
+    };
+  });
+
+  const handleNext = () => setActiveStep((prev) => prev + 1)
+  const handleBack = () => setActiveStep((prev) => prev - 1)
+
+  const StepIcon = (props) => {
+    const { active, completed, icon } = props
+    return (
+      <Box sx={{
+        width: 32, height: 32, borderRadius: '50%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        backgroundColor: active || completed ? '#00cfd5' : '#eee',
+        color: active || completed ? '#fff' : '#888',
+        fontWeight: 700, fontSize: '0.8rem'
+      }}>{icon}</Box>
+    )
+  }
+
+  // Key difference: mode="view"
+  const commonProps = { formData, mode: 'view' };
+
   return (
     <Box sx={{ p: 5, backgroundColor: '#f5f7fa', minHeight: '100vh' }}>
-      <Card sx={{ p: 5, borderRadius: '15px' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>Company Profile</Typography>
-          <Button variant="contained" onClick={onBack} sx={{ backgroundColor: '#00cfd5' }}>Back</Button>
+      <Card sx={{ p: 5, borderRadius: '15px', border: '1px solid #eee' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 5 }}>
+          <Typography sx={{ fontSize: '1.4rem', fontWeight: 700 }}>Company Profile (View Only)</Typography>
+          <Button variant="contained" onClick={onBack} sx={{ backgroundColor: '#00cfd5', textTransform: 'none' }}>Exit View</Button>
         </Box>
-        <Divider sx={{ mb: 4 }} />
-        <Grid container spacing={3}>
-          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
-            <Avatar sx={{ width: 100, height: 100, fontSize: '2rem', bgcolor: '#00cfd5' }}>{data?.name?.[0]}</Avatar>
-            <Box>
-              <Typography variant="h4">{data?.name}</Typography>
-              <Typography color="textSecondary">{data?.email}</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={4}><Typography variant="caption">Phone</Typography><Typography sx={{ fontWeight: 600 }}>{data?.number}</Typography></Grid>
-          <Grid item xs={4}><Typography variant="caption">Status</Typography><Typography sx={{ fontWeight: 600 }}>{data?.status}</Typography></Grid>
-          <Grid item xs={4}><Typography variant="caption">ID</Typography><Typography sx={{ fontWeight: 600 }}>#00{data?.id}</Typography></Grid>
-        </Grid>
+
+        <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 8 }}>
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel StepIconComponent={StepIcon}>
+                <Typography sx={{ fontSize: '0.75rem', fontWeight: 600 }}>{label}</Typography>
+              </StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+
+        {/* content box disabled via pointerEvents for extra safety */}
+        <Box sx={{ minHeight: '325px', mb: 8, pointerEvents: 'none' }}>
+          {activeStep === 0 && <Step1 {...commonProps} />}
+          {activeStep === 1 && <Step2 {...commonProps} />}
+          {activeStep === 2 && <Step3 {...commonProps} />}
+          {activeStep === 3 && <Step4 {...commonProps} />}
+          {activeStep === 4 && <Step5 {...commonProps} />}
+        </Box>
+
+        <Stack direction="row" justifyContent="space-between">
+          <Button disabled={activeStep === 0} onClick={handleBack} sx={{ border: "1px solid #00cfd5", color: '#666', textTransform: 'none', px: 4 }}>Previous</Button>
+          <Button 
+            variant="outlined" 
+            onClick={activeStep === steps.length - 1 ? onBack : handleNext} 
+            sx={{ color: '#00cfd5', borderColor: '#00cfd5', px: 6 }}
+          >
+            {activeStep === steps.length - 1 ? 'Close View' : 'Next Step'}
+          </Button>
+        </Stack>
       </Card>
     </Box>
   )
 }
-export default ViewPage
+export default ViewPage;

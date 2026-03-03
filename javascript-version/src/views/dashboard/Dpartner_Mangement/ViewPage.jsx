@@ -1,39 +1,30 @@
 'use client'
 import React, { useState } from 'react'
-import { Box, Typography, Button, Stepper, Step, StepLabel, Card, Stack, Snackbar, Alert } from '@mui/material'
+import { Box, Typography, Button, Stepper, Step, StepLabel, Card, Stack } from '@mui/material'
 import Step1 from './AddStepsPage/Step1PersonalInfo'
-import Step2 from './AddStepsPage/Step2CompanyDetails'
-import Step3 from './AddStepsPage/Step3CompanyAddress'
-import Step4 from './AddStepsPage/Step4DeliveryDetails'
-import Step5 from './AddStepsPage/Step5Verification'
+import Step2 from './AddStepsPage/Step2IdentityDetails'
+import Step3 from './AddStepsPage/Step3PartnerAddress'
+import Step4 from './AddStepsPage/Step4VehicleDetails'
+import Step5 from './AddStepsPage/Step5Review'
 
 const steps = ['Personal Info', 'Company Details', 'Company Address', 'Delivery Details', 'Business Verification']
 
-const EditPage = ({ data, onBack }) => {
+const ViewPage = ({ data, onBack }) => {
   const [activeStep, setActiveStep] = useState(0)
-  const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' })
 
-  // Mapping dummy/list data to form keys
-  const [formData, setFormData] = useState(() => {
+  const [formData] = useState(() => {
     const nameParts = data?.name ? data.name.split(' ') : ['', ''];
     return {
       ...data,
       firstName: nameParts[0] || '',
       lastName: nameParts.slice(1).join(' ') || '',
       contactNumber: data?.number || '',
-      companyName: data?.name || '',
-      isDelivering: data?.isDelivering || 'no'
+      companyName: data?.name || ''
     };
   });
 
   const handleNext = () => setActiveStep((prev) => prev + 1)
   const handleBack = () => setActiveStep((prev) => prev - 1)
-
-  const handleUpdate = () => {
-    console.log("Updating Data:", formData);
-    setNotification({ open: true, message: 'Company Updated Successfully!', severity: 'success' });
-    setTimeout(onBack, 1500);
-  }
 
   const StepIcon = (props) => {
     const { active, completed, icon } = props
@@ -48,18 +39,15 @@ const EditPage = ({ data, onBack }) => {
     )
   }
 
-  const commonProps = { formData, setFormData, mode: 'edit' };
+  // Key difference: mode="view"
+  const commonProps = { formData, mode: 'view' };
 
   return (
     <Box sx={{ p: 5, backgroundColor: '#f5f7fa', minHeight: '100vh' }}>
-      <Snackbar open={notification.open} autoHideDuration={3000} onClose={() => setNotification({ ...notification, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <Alert severity={notification.severity} sx={{ borderRadius: '10px',  backgroundColor:"white"}}>{notification.message}</Alert>
-      </Snackbar>
- 
       <Card sx={{ p: 5, borderRadius: '15px', border: '1px solid #eee' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 5 }}>
-          <Typography sx={{ fontSize: '1.4rem', fontWeight: 700 }}>Edit Company</Typography>
-          <Button variant="outlined" onClick={onBack} sx={{ color: '#00cfd5', borderColor: '#00cfd5', textTransform: 'none' }}>Back</Button>
+          <Typography sx={{ fontSize: '1.4rem', fontWeight: 700 }}>Company Profile (View Only)</Typography>
+          <Button variant="contained" onClick={onBack} sx={{ backgroundColor: '#00cfd5', textTransform: 'none' }}>Exit View</Button>
         </Box>
 
         <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 8 }}>
@@ -72,7 +60,8 @@ const EditPage = ({ data, onBack }) => {
           ))}
         </Stepper>
 
-        <Box sx={{ minHeight: '325px', mb: 8 }}>
+        {/* content box disabled via pointerEvents for extra safety */}
+        <Box sx={{ minHeight: '325px', mb: 8, pointerEvents: 'none' }}>
           {activeStep === 0 && <Step1 {...commonProps} />}
           {activeStep === 1 && <Step2 {...commonProps} />}
           {activeStep === 2 && <Step3 {...commonProps} />}
@@ -82,12 +71,16 @@ const EditPage = ({ data, onBack }) => {
 
         <Stack direction="row" justifyContent="space-between">
           <Button disabled={activeStep === 0} onClick={handleBack} sx={{ border: "1px solid #00cfd5", color: '#666', textTransform: 'none', px: 4 }}>Previous</Button>
-          <Button variant="contained" onClick={activeStep === steps.length - 1 ? handleUpdate : handleNext} sx={{ backgroundColor: '#00cfd5', px: 6 }}>
-            {activeStep === steps.length - 1 ? 'Update Company' : 'Next'}
+          <Button 
+            variant="outlined" 
+            onClick={activeStep === steps.length - 1 ? onBack : handleNext} 
+            sx={{ color: '#00cfd5', borderColor: '#00cfd5', px: 6 }}
+          >
+            {activeStep === steps.length - 1 ? 'Close View' : 'Next Step'}
           </Button>
         </Stack>
       </Card>
     </Box>
   )
 }
-export default EditPage;
+export default ViewPage;
