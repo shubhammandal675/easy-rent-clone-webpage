@@ -31,7 +31,7 @@ const EditPage = ({ data, onBack }) => {
 
   const handleUpdate = () => {
     console.log("Updating Data:", formData);
-    setNotification({ open: true, message: 'Company Updated Successfully!', severity: 'success' });
+    setNotification({ open: true, message: 'Delivery Partner Updated Successfully!', severity: 'success' });
     setTimeout(onBack, 1500);
   }
 

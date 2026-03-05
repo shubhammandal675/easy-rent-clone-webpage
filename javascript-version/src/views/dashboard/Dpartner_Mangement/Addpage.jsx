@@ -4,8 +4,8 @@ import { Box, Typography, Button, Stepper, Step, StepLabel, Card, Stack } from '
 import Step1 from './AddStepsPage/Step1PersonalInfo'
 import Step2 from './AddStepsPage/Step2IdentityDetails'
 import Step3 from './AddStepsPage/Step3PartnerAddress'
-import Step4 from './AddStepsPage/Step4VehicleDetails' // Image ke hisaab se 4th Step
-import Step5 from './AddStepsPage/Step5Review'        // Image ke hisaab se 5th Step
+import Step4 from './AddStepsPage/Step4VehicleDetails' 
+import Step5 from './AddStepsPage/Step5Review'        
 
 // Exact match with your Screenshot Stepper
 const steps = ['Personal Info', 'Identity Details', 'Address', 'Vehicle Details', 'Review']
@@ -73,7 +73,7 @@ const AddPage = ({ onBack }) => {
           ))}
         </Stepper>
 
-        <Box sx={{ minHeight: '350px', mb: 5 }}>
+        <Box sx={{ minHeight: '273px', mb: 5 }}>
           {renderStepContent(activeStep)}
         </Box>
 

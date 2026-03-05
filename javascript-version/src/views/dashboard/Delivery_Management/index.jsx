@@ -109,7 +109,7 @@ const [orders, setOrders] = useState([
             color: '#000',
             fontFamily: outfitFont
           }}>
-            Order Management
+            Delivery Management
           </Typography>
           <Button
             variant="contained"

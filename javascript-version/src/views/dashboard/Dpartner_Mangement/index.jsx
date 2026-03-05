@@ -2,8 +2,8 @@
 import React, { useState } from 'react'
 import Dpartner_Management_list from './Dpartner_Management_list'
 import Addpage from './Addpage'
-import EditPage from './EditPage' // Agar aapne banaya ho
-import ViewPage from './ViewPage' // Agar aapne banaya ho
+import EditPage from './EditPage' 
+import ViewPage from './ViewPage' 
 
 const Dpartner_Management = () => {
   // Views: 'list', 'add', 'edit', 'view'
