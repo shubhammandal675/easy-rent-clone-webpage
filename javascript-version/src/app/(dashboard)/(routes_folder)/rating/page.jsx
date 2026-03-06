@@ -2,8 +2,10 @@
 
 import Rating_Management from "@/views/dashboard/Rating_Management"
 
-export default function RatingPage(){
+const RatingPage=()=>{
     return(
         <Rating_Management/>
     )
 }
+
+export default RatingPage

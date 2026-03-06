@@ -1,7 +1,9 @@
 import Notification_Management from "@/views/dashboard/Notification_Management"
 
-export default function NotificationPage(){
+const NotificationPage=()=>{
     return(
         <Notification_Management/>
     )
 }
+
+export default NotificationPage
