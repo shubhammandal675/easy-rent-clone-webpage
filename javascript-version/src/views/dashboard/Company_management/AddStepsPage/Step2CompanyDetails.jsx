@@ -2,7 +2,8 @@
 import React from 'react'
 import { Grid, TextField, Typography, Box, Button } from '@mui/material'
 
-const Step2CompanyDetails = ({ mode = 'add', formData, setFormData }) => {
+// errors aur setErrors props add kiye hain
+const Step2CompanyDetails = ({ mode = 'add', formData, setFormData, errors = {}, setErrors }) => {
   const isView = mode === 'view';
 
   const LabelStyle = {
@@ -18,21 +19,33 @@ const Step2CompanyDetails = ({ mode = 'add', formData, setFormData }) => {
       borderRadius: '8px',
       fontSize: '0.85rem',
       height: '42px',
-      // View mode mein background light grey
       backgroundColor: isView ? '#f9f9f9' : '#fff',
       '& fieldset': { borderColor: '#e0e0e0' },
       '&:hover fieldset': { borderColor: isView ? '#e0e0e0' : '#00cfd5' },
       '&.Mui-focused fieldset': { borderColor: isView ? '#e0e0e0' : '#00cfd5' },
     },
+    // --- HOVER LOGIC: Hide error message on hover ---
+    '&:hover .MuiFormHelperText-root': {
+      visibility: 'hidden', 
+    },
     '& .MuiInputBase-input': { padding: '10px 14px' },
     '& .Mui-disabled': {
-      WebkitTextFillColor: '#555', // Disabled text color readable rahe
+      WebkitTextFillColor: '#555', 
     }
   }
 
   const handleChange = (e) => {
     if (!isView) {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
+      const { name, value } = e.target;
+      setFormData({ ...formData, [name]: value });
+
+      // --- TYPING LOGIC: Clear error when user starts writing ---
+      if (setErrors && errors[name]) {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: '' 
+        }));
+      }
     }
   }
 
@@ -63,7 +76,6 @@ const Step2CompanyDetails = ({ mode = 'add', formData, setFormData }) => {
           )}
         </Box>
 
-        {/* CONDITION: Upload button sirf Add ya Edit mode mein dikhega */}
         {!isView && (
           <Button
             variant="contained"
@@ -96,6 +108,8 @@ const Step2CompanyDetails = ({ mode = 'add', formData, setFormData }) => {
             value={formData?.companyName || ''}
             onChange={handleChange}
             placeholder="Enter company name" 
+            error={!!errors.companyName}
+            helperText={errors.companyName}
             sx={InputStyle} 
           />
         </Grid>
@@ -111,6 +125,8 @@ const Step2CompanyDetails = ({ mode = 'add', formData, setFormData }) => {
             value={formData?.businessType || ''}
             onChange={handleChange}
             placeholder="Enter business type" 
+            error={!!errors.businessType}
+            helperText={errors.businessType}
             sx={InputStyle} 
           />
         </Grid>
@@ -126,6 +142,8 @@ const Step2CompanyDetails = ({ mode = 'add', formData, setFormData }) => {
             value={formData?.regNumber || ''}
             onChange={handleChange}
             placeholder="Enter registration number" 
+            error={!!errors.regNumber}
+            helperText={errors.regNumber}
             sx={InputStyle} 
           />
         </Grid>
@@ -141,6 +159,8 @@ const Step2CompanyDetails = ({ mode = 'add', formData, setFormData }) => {
             disabled={isView}
             value={formData?.regDate || ''}
             onChange={handleChange}
+            error={!!errors.regDate}
+            helperText={errors.regDate}
             sx={InputStyle}
             InputLabelProps={{ shrink: true }}
           />

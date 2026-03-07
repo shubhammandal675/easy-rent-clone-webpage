@@ -1,8 +1,9 @@
 'use client'
 import React from 'react'
-import { Grid, TextField, Typography, MenuItem, Select, InputAdornment, Box } from '@mui/material'
+import { Grid, TextField, Typography, MenuItem, Select, InputAdornment, Box, FormControl, FormHelperText } from '@mui/material'
 
-const Step1PersonalInfo = ({ mode = 'add', formData, setFormData }) => {
+// setErrors prop ko receive kiya taaki typing par error clear ho sake
+const Step1PersonalInfo = ({ mode = 'add', formData, setFormData, errors = {}, setErrors }) => {
   const isView = mode === 'view';
 
   const LabelStyle = { 
@@ -21,7 +22,10 @@ const Step1PersonalInfo = ({ mode = 'add', formData, setFormData }) => {
       '&:hover fieldset': { borderColor: isView ? '#e0e0e0' : '#00cfd5' },
       '&.Mui-focused fieldset': { borderColor: isView ? '#e0e0e0' : '#00cfd5' },
     },
-    // View mode mein text color ko dark rakhne ke liye fix
+    // HOVER FEATURE: Mouse le jane par error hide hoga
+    '&:hover .MuiFormHelperText-root': {
+      visibility: 'hidden', 
+    },
     '& .MuiInputBase-input.Mui-disabled': {
       WebkitTextFillColor: '#222', 
       opacity: 1
@@ -34,7 +38,18 @@ const Step1PersonalInfo = ({ mode = 'add', formData, setFormData }) => {
 
   const handleChange = (e) => {
     if (!isView) {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
+      const { name, value } = e.target;
+      
+      // 1. Data update karo
+      setFormData({ ...formData, [name]: value });
+
+      // 2. FIXED: Agar is field mein error hai, toh use turant clear karo
+      if (setErrors && errors[name]) {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: '' // Error message ko khali kar do
+        }));
+      }
     }
   }
 
@@ -45,6 +60,7 @@ const Step1PersonalInfo = ({ mode = 'add', formData, setFormData }) => {
       </Typography>
 
       <Grid container spacing={3}>
+        
         {/* First Name */}
         <Grid item xs={12} md={6}>
           <Typography sx={LabelStyle}>First Name</Typography>
@@ -56,6 +72,8 @@ const Step1PersonalInfo = ({ mode = 'add', formData, setFormData }) => {
             value={formData?.firstName || ''}
             onChange={handleChange}
             placeholder="Enter first name" 
+            error={!!errors.firstName} 
+            helperText={errors.firstName} 
             sx={InputStyle} 
           />
         </Grid>
@@ -71,6 +89,8 @@ const Step1PersonalInfo = ({ mode = 'add', formData, setFormData }) => {
             value={formData?.lastName || ''}
             onChange={handleChange}
             placeholder="Enter last name" 
+            error={!!errors.lastName}
+            helperText={errors.lastName}
             sx={InputStyle} 
           />
         </Grid>
@@ -86,6 +106,8 @@ const Step1PersonalInfo = ({ mode = 'add', formData, setFormData }) => {
             value={formData?.email || ''}
             onChange={handleChange}
             placeholder="Enter Email" 
+            error={!!errors.email}
+            helperText={errors.email}
             sx={InputStyle} 
           />
         </Grid>
@@ -101,6 +123,8 @@ const Step1PersonalInfo = ({ mode = 'add', formData, setFormData }) => {
             value={formData?.contactNumber || ''}
             onChange={handleChange}
             placeholder="00000-00000" 
+            error={!!errors.contactNumber}
+            helperText={errors.contactNumber}
             sx={InputStyle}
             InputProps={{
               startAdornment: (
@@ -118,45 +142,43 @@ const Step1PersonalInfo = ({ mode = 'add', formData, setFormData }) => {
         {/* Currency Dropdown */}
         <Grid item xs={12} md={6}>
           <Typography sx={LabelStyle}>Currency</Typography>
-          <Select
-            fullWidth
-            size="small"
-            name="currency"
-            disabled={isView}
-            value={formData?.currency || 'INR'} // Default INR rakha hai
-            onChange={handleChange}
-            sx={{ 
-                borderRadius: '8px', 
-                backgroundColor: isView ? '#f5f5f5' : '#fff',
-                '& .MuiSelect-select.Mui-disabled': { WebkitTextFillColor: '#222' }
-            }}
-          >
-            <MenuItem value="USD">USD - US Dollar</MenuItem>
-            <MenuItem value="INR">INR - Indian Rupee</MenuItem>
-            <MenuItem value="AED">AED - Dirham</MenuItem>
-          </Select>
+          <FormControl fullWidth size="small" error={!!errors.currency} sx={InputStyle}>
+            <Select
+              name="currency"
+              disabled={isView}
+              value={formData?.currency || ''} 
+              onChange={handleChange}
+              displayEmpty
+              sx={{ borderRadius: '8px', backgroundColor: isView ? '#f5f5f5' : '#fff' }}
+            >
+              <MenuItem value="" disabled>Select Currency</MenuItem>
+              <MenuItem value="USD">USD - US Dollar</MenuItem>
+              <MenuItem value="INR">INR - Indian Rupee</MenuItem>
+              <MenuItem value="AED">AED - Dirham</MenuItem>
+            </Select>
+            {errors.currency && <FormHelperText>{errors.currency}</FormHelperText>}
+          </FormControl>
         </Grid>
 
         {/* Language Dropdown */}
         <Grid item xs={12} md={6}>
           <Typography sx={LabelStyle}>Language</Typography>
-          <Select
-            fullWidth
-            size="small"
-            name="language"
-            disabled={isView}
-            value={formData?.language || 'English'} 
-            onChange={handleChange}
-            sx={{ 
-                borderRadius: '8px', 
-                backgroundColor: isView ? '#f5f5f5' : '#fff',
-                '& .MuiSelect-select.Mui-disabled': { WebkitTextFillColor: '#222' }
-            }}
-          >
-            <MenuItem value="English">English</MenuItem>
-            <MenuItem value="Hindi">Hindi</MenuItem>
-            <MenuItem value="Arabic">Arabic</MenuItem>
-          </Select>
+          <FormControl fullWidth size="small" error={!!errors.language} sx={InputStyle}>
+            <Select
+              name="language"
+              disabled={isView}
+              value={formData?.language || ''} 
+              onChange={handleChange}
+              displayEmpty
+              sx={{ borderRadius: '8px', backgroundColor: isView ? '#f5f5f5' : '#fff' }}
+            >
+              <MenuItem value="" disabled>Select Language</MenuItem>
+              <MenuItem value="English">English</MenuItem>
+              <MenuItem value="Hindi">Hindi</MenuItem>
+              <MenuItem value="Arabic">Arabic</MenuItem>
+            </Select>
+            {errors.language && <FormHelperText>{errors.language}</FormHelperText>}
+          </FormControl>
         </Grid>
       </Grid>
     </Box>

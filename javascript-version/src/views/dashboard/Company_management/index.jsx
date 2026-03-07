@@ -1,15 +1,22 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react' // 1. useEffect add kiya
 import CompanyList from './Company_Management_list'
 import AddPage from './Addpage'
 import EditPage from './EditPage'
 import ViewPage from './ViewPage'
 
 const CompanyManagement = () => {
-  const [view, setView] = useState('list') 
+  // 2. Initial State: Refresh par storage se view uthao, warna 'list'
+  const [view, setView] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('management_view') || 'list';
+    }
+    return 'list';
+  });
+
   const [selectedData, setSelectedData] = useState(null)
 
-  // Dummy data
+    // Dummy data
  const [companies, setCompanies] = useState([
         { id: 1, name: 'Ram kast', email: 'ram@grr.la', number: '+91 916754356435', status: 'ReApprove', active: true },
         { id: 2, name: 'Naman Sharma', email: 'naman.s@mailinator.com', number: '+91 3636363636', status: 'Buttons', active: true },
@@ -26,12 +33,17 @@ const CompanyManagement = () => {
         { id: 13, name: 'Swift Delivery', email: 'swift@delivery.com', number: '+91 7766554433', status: 'Pending', active: true }
     ]);
 
+  // 3. Save View: Jab bhi view change ho, storage mein update karo
+  useEffect(() => {
+    sessionStorage.setItem('management_view', view);
+  }, [view]);
+
   const handleBack = () => {
+    sessionStorage.removeItem('management_view'); // List par jane par memory saaf
     setView('list')
     setSelectedData(null)
   }
 
-  // Same Delete Method as Customer Code
   const handleDelete = (id) => {
     setCompanies(prev => prev.filter(item => item.id !== id))
   }
@@ -49,15 +61,16 @@ const CompanyManagement = () => {
         />
       )}
 
-      {view === 'add' && <AddPage onBack={handleBack} />}
+      {view === 'add' && (
+        <AddPage 
+          onBack={handleBack} 
+          setCompanies={setCompanies} 
+          companies={companies} 
+        />
+      )}
       
-      {view === 'edit' && (
-        <EditPage data={selectedData} onBack={handleBack} />
-      )}
-
-      {view === 'view' && (
-        <ViewPage data={selectedData} onBack={handleBack} />
-      )}
+      {view === 'edit' && <EditPage data={selectedData} onBack={handleBack} setCompanies={setCompanies} />}
+      {view === 'view' && <ViewPage data={selectedData} onBack={handleBack} />}
     </>
   )
 }

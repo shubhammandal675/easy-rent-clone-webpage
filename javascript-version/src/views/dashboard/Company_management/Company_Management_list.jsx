@@ -56,7 +56,7 @@ const CompanyList = ({ companies, setCompanies, onAdd, onEdit, onView, onDelete 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 6 }}>
                     <Typography sx={{ fontSize: '1.2rem', fontWeight: 700 , color: '#000' }}>Company Management</Typography>
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button variant="contained" sx={{ backgroundColor: '#00cfd5', textTransform: 'none', borderRadius: '8px' }}>Import</Button>
+                        <Button variant="contained" sx={{ backgroundColor: '#00cfd5', gfdlyyyfduigiudsfhfdliudfsflifhshubhamtextTransform: 'none', borderRadius: '8px' }}>Import</Button>
                         <Button variant="contained" sx={{ backgroundColor: '#00cfd5', textTransform: 'none', borderRadius: '8px' }}>Export</Button>
                         <Button onClick={onAdd} variant="contained" sx={{ backgroundColor: '#00cfd5', textTransform: 'none', borderRadius: '8px' }}>Add Company</Button>
                     </Box>

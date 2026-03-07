@@ -16,7 +16,7 @@ const NotificationList = ({ notifications, setNotifications, onAddClick, outfitF
 
     // --- Pagination States ---
     const [currentPage, setCurrentPage] = useState(1);
-    const rowsPerPage = 5; // Ek page par kitne rows dikhane hain
+    const rowsPerPage = 5; 
 
     // --- Search & Status Filter Logic ---
     const filteredData = useMemo(() => {
@@ -28,7 +28,7 @@ const NotificationList = ({ notifications, setNotifications, onAddClick, outfitF
             const matchesStatus = 
                 statusFilter === 'Select Status' || item.status === statusFilter;
 
-            return matchesSearch && matchesStatus; // Tab filter hata diya hai
+            return matchesSearch && matchesStatus; 
         });
     }, [notifications, searchTerm, statusFilter]);
 
