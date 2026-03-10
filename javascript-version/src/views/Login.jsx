@@ -62,7 +62,7 @@ const Login = () => {
       )
 
       if (response.status === 200) {
-        toast.success("Welcome Back! 👋🏻")
+        toast.success("Welcome Back! ")
         localStorage.setItem('userEmail', response.data.user.email)
         setTimeout(() => router.push('/'), 1500)
       }

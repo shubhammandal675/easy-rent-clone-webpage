@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
-const { User } = require("../models/userdata");
+const { LoginUser } = require("../models/logindata");
 const verifyToken = require("../middleware/verifyToken");
 
 router.put("/update-profile", verifyToken, async (req, res) => {

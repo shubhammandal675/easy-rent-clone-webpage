@@ -127,6 +127,7 @@ const AddPage = ({ onBack }) => {
   const handleExit = () => {
     sessionStorage.removeItem('temp_company_data');
     sessionStorage.removeItem('temp_step_index');
+    sessionStorage.removeItem('is_adding_company');// changes
     onBack();
   }
 
@@ -135,6 +136,7 @@ const AddPage = ({ onBack }) => {
       console.log("Final Submission:", formData);
       sessionStorage.removeItem('temp_company_data');
       sessionStorage.removeItem('temp_step_index');
+      sessionStorage.removeItem('is_adding_company'); 
       onBack();
     }
   }

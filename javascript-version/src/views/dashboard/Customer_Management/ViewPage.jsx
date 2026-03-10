@@ -2,7 +2,7 @@
 import React from 'react'
 import { 
   Box, TextField, Button, Typography, Grid, 
-  Card, MenuItem, Select, InputAdornment 
+  Card, MenuItem, Select 
 } from '@mui/material'
 
 const ViewPage = ({ data, onBack }) => {
@@ -15,16 +15,19 @@ const ViewPage = ({ data, onBack }) => {
     display: 'block'
   }
 
-
   const InputStyle = {
     '& .MuiOutlinedInput-root': { 
       borderRadius: '8px', 
       height: '50px',
-      backgroundColor: '#fcfcfc',
+      backgroundColor: '#f9f9f9',
+      // This makes the mouse pointer show a "disabled/prohibited" circle
+      cursor: 'not-allowed', 
+    },
+    '& .MuiOutlinedInput-input': {
+      cursor: 'not-allowed', // Ensures the inner text area also shows the icon
     },
     '& .Mui-disabled': {
-      WebkitTextFillColor: '#444 !important', // Text color when disabled
-      backgroundColor: '#f9f9f9'
+      WebkitTextFillColor: '#444 !important', 
     },
     '& fieldset': { border: '1px solid #e0e0e0 !important' }
   }
@@ -55,20 +58,29 @@ const ViewPage = ({ data, onBack }) => {
           </Button>
         </Box>
 
-
+        {/* IMAGE SECTION - Showing Real Image */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 6 }}>
           <Box sx={{ 
             width: 100, 
             height: 100, 
-            backgroundColor: '#4a90e2', 
+            backgroundColor: '#eef2ff', 
             borderRadius: '50%', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center', 
-            boxShadow: '0px 4px 12px rgba(0,0,0,0.1)'
+            boxShadow: '0px 4px 12px rgba(0,0,0,0.1)',
+            overflow: 'hidden',
+            border: '2px solid #f0f0f0'
           }}>
-            {/* White User Icon */}
-            <i className="ri-user-fill" style={{ fontSize: '80px', color: '#fff' }} />
+            {data?.profileImage ? (
+              <img 
+                src={`http://localhost:5000${data.profileImage}`} 
+                alt="Profile" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              />
+            ) : (
+              <i className="ri-user-fill" style={{ fontSize: '80px', color: '#54a5d4' }} />
+            )}
           </Box>
         </Box>
 
@@ -79,7 +91,7 @@ const ViewPage = ({ data, onBack }) => {
             <TextField 
               fullWidth 
               disabled
-              value={data?.name?.split(' ')[0] || 'Shubham'}
+              value={data?.name?.split(' ')[0] || ''}
               sx={InputStyle}
             />
           </Grid>
@@ -89,7 +101,7 @@ const ViewPage = ({ data, onBack }) => {
             <TextField 
               fullWidth 
               disabled
-              value={data?.name?.split(' ')[1] || 'Mandal'}
+              value={data?.name?.split(' ')[1] || ''}
               sx={InputStyle}
             />
           </Grid>
@@ -99,7 +111,7 @@ const ViewPage = ({ data, onBack }) => {
             <TextField 
               fullWidth 
               disabled
-              value={data?.email || 'example@gmail.com'}
+              value={data?.email || ''}
               sx={InputStyle}
             />
           </Grid>
@@ -109,16 +121,7 @@ const ViewPage = ({ data, onBack }) => {
             <TextField 
               fullWidth 
               disabled
-              value={data?.number || '+91 255104052'}
-            //   InputProps={{
-            //     startAdornment: (
-            //       <InputAdornment position="start">
-            //         {/* Flag placeholder  */}
-            //         <Box component="span" sx={{ fontSize: '20px', mr: 1 }}>🇦🇴</Box>
-            //         <Box sx={{ borderRight: '1px solid #ddd', height: '20px', mr: 1 }} />
-            //       </InputAdornment>
-            //     ),
-            //   }}
+              value={data?.contact || data?.number || ''}
               sx={InputStyle}
             />
           </Grid>
@@ -128,11 +131,18 @@ const ViewPage = ({ data, onBack }) => {
             <Select 
               fullWidth 
               disabled
-              value="EUR"
-              sx={{ borderRadius: '8px', height: '50px', backgroundColor: '#f9f9f9' }}
+              value={data?.currency || 'USD'}
+              sx={{ 
+                borderRadius: '8px', 
+                height: '50px', 
+                backgroundColor: '#f9f9f9',
+                cursor: 'not-allowed', // Fix for Select pointer
+                '& .MuiSelect-select': { cursor: 'not-allowed' } 
+              }}
             >
-              <MenuItem value="EUR">EUR</MenuItem>
               <MenuItem value="USD">USD</MenuItem>
+              <MenuItem value="EUR">EUR</MenuItem>
+              <MenuItem value="TRY">TRY</MenuItem>
             </Select>
           </Grid>
 
@@ -141,11 +151,18 @@ const ViewPage = ({ data, onBack }) => {
             <Select 
               fullWidth 
               disabled
-              value="English"
-              sx={{ borderRadius: '8px', height: '50px', backgroundColor: '#f9f9f9' }}
+              value={data?.language || 'English'}
+              sx={{ 
+                borderRadius: '8px', 
+                height: '50px', 
+                backgroundColor: '#f9f9f9',
+                cursor: 'not-allowed',
+                '& .MuiSelect-select': { cursor: 'not-allowed' }
+              }}
             >
               <MenuItem value="English">English</MenuItem>
               <MenuItem value="German">German</MenuItem>
+              <MenuItem value="Turkish">Turkish</MenuItem>
             </Select>
           </Grid>
         </Grid>
