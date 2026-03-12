@@ -1,20 +1,22 @@
 'use client'
 import React, { useState } from 'react'
 import { Box, TextField, Button, Typography, Grid, Card, MenuItem, Select, FormHelperText, FormControl } from '@mui/material'
+import PhoneInput from '@dvij-infotech/react-phone-input-2-country-sort'
+import '@dvij-infotech/react-phone-input-2-country-sort/lib/style.css'
 
 const AddPage = ({ onBack, onAdd, onError }) => {
   const [formData, setFormData] = useState({
-    firstName: '', 
-    lastName: '', 
-    email: '', 
-    number: '', 
-    currency: 'USD', 
-    language: 'English'
+    firstName: '',
+    lastName: '',
+    email: '',
+    countryCode: '',
+    number: '',
+    fullNumber: '',
+    currency: '',
+    language: ''
   })
-  
-  // Track errors for all fields
-  const [errors, setErrors] = useState({})
 
+  const [errors, setErrors] = useState({})
   const [imageFile, setImageFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState(null)
 
@@ -27,75 +29,100 @@ const AddPage = ({ onBack, onAdd, onError }) => {
   }
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-    // Hide error when user starts writing
-    if (errors[e.target.name]) {
-      setErrors(prev => ({ ...prev, [e.target.name]: false }))
+    const { name, value } = e.target
+    const finalValue = name === 'email' ? value.replace(/\s/g, '') : value
+
+    setFormData(prev => ({ ...prev, [name]: finalValue }))
+
+    if (finalValue.trim() !== '') {
+      setErrors(prev => ({ ...prev, [name]: '' }))
     }
   }
 
-  // Hide error on Mouse Hover
-  const handleHover = (fieldName) => {
-    if (errors[fieldName]) {
-      setErrors(prev => ({ ...prev, [fieldName]: false }))
-    }
+const handlePhoneChange = (value, data) => {
+  const dialCode = data.dialCode
+  const phoneNumber = value.slice(dialCode.length)
+  console.log("phone number", phoneNumber)
+
+  setFormData(prev => ({
+    ...prev,
+    countryCode: `+${dialCode}`,  // "+91"
+    number: phoneNumber,           // "9876543210"
+    fullNumber: `+${dialCode} ${phoneNumber}`    // "919876543210" (no + prefix)
+  }))
+console.log("form",formData)
+  if (phoneNumber.length >= 7) {
+    setErrors(prev => ({ ...prev, number: '' }))
   }
+}
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
       setImageFile(file)
-      setPreviewUrl(URL.createObjectURL(file)) 
-      setErrors(prev => ({ ...prev, profileImage: false }))
+      setPreviewUrl(URL.createObjectURL(file))
+      setErrors(prev => ({ ...prev, profileImage: '' }))
     }
   }
 
-  const handleSave = () => {
-    // Validate ALL columns
+  const handleSave = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const trimmedEmail = formData.email.trim()
+
     const newErrors = {
-      firstName: !formData.firstName,
-      lastName: !formData.lastName,
-      email: !formData.email,
-      number: !formData.number,
-      currency: !formData.currency,
-      language: !formData.language,
-      profileImage: !imageFile
+      firstName: !formData.firstName.trim() ? 'Required' : '',
+      lastName: !formData.lastName.trim() ? 'Required' : '',
+      email: !trimmedEmail ? 'Required' : (!emailRegex.test(trimmedEmail) ? 'Invalid format' : ''),
+      number: (!formData.fullNumber || formData.fullNumber.length < 10) ? 'Invalid phone number' : '',
+      currency: !formData.currency ? 'Required' : '',
+      language: !formData.language ? 'Required' : '',
+      profileImage: !imageFile ? 'Required' : ''
     }
 
     setErrors(newErrors)
 
-    const hasError = Object.values(newErrors).some(val => val === true)
-
-    if (hasError) {
-      onError("Please fill all fields!", "error");
-      return;
+    if (Object.values(newErrors).some(val => val !== '')) {
+      onError('Please fix the errors highlighted in red!', 'error')
+      return
     }
 
-    onAdd({ ...formData, profileImage: imageFile });
+    try {
+      await onAdd({ ...formData, profileImage: imageFile })
+    } catch (err) {
+      const backendMsg = err.response?.data?.message || 'An unexpected error occurred'
+      onError(backendMsg, 'error')
+
+      const lowerMsg = backendMsg.toLowerCase()
+
+      if (lowerMsg.includes('email')) {
+        setErrors(prev => ({ ...prev, email: 'Email already exists' }))
+      } else if (lowerMsg.includes('number') || lowerMsg.includes('phone') || lowerMsg.includes('contact')) {
+        setErrors(prev => ({ ...prev, number: 'Phone number already exists' }))
+      }
+    }
   }
 
   return (
     <Box sx={{ p: 5, backgroundColor: '#f5f7fa', minHeight: '100vh' }}>
-      <Card sx={{ p: 7, borderRadius: '15px' }}>
+      <Card sx={{ p: 7, borderRadius: '15px', overflow: 'visible' }}>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 8 }}>
           <Typography sx={{ fontSize: '1.2rem', fontWeight: 700 }}>Add Customer</Typography>
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button variant="contained" onClick={handleSave} sx={{ backgroundColor: '#00cfd5', textTransform: 'none', fontWeight: 600 }}>
+            <Button variant="contained" onClick={handleSave} sx={{ backgroundColor: '#00cfd5', '&:hover': { backgroundColor: '#00b4b9' }, textTransform: 'none', fontWeight: 600 }}>
               Add Customer
             </Button>
             <Button variant="outlined" sx={{ color: '#00cfd5', borderColor: '#00cfd5', textTransform: 'none' }} onClick={onBack}>Back</Button>
           </Box>
         </Box>
 
-        {/* Image Section */}
+        {/* Profile Image Section */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 5, ml: 2 }}>
-          <Box 
-            onMouseEnter={() => handleHover('profileImage')}
+          <Box
             sx={{
               width: 80, height: 80, backgroundColor: '#eef2ff', borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#54a5d4', overflow: 'hidden', 
+              color: '#54a5d4', overflow: 'hidden',
               border: errors.profileImage ? '2px solid #d32f2f' : '2px solid #f0f0f0'
             }}
           >
@@ -112,53 +139,70 @@ const AddPage = ({ onBack, onAdd, onError }) => {
         </Box>
 
         <Grid container spacing={3}>
-          {/* First Name */}
-          <Grid item xs={6} onMouseEnter={() => handleHover('firstName')}>
+          <Grid item xs={6}>
             <Typography sx={LabelStyle}>First Name</Typography>
-            <TextField fullWidth name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Enter first name" error={errors.firstName} helperText={errors.firstName && "Required"} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', height: '45px' } }} />
+            <TextField fullWidth name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Enter first name" error={!!errors.firstName} helperText={errors.firstName} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', height: '45px' } }} />
           </Grid>
 
-          {/* Last Name */}
-          <Grid item xs={6} onMouseEnter={() => handleHover('lastName')}>
+          <Grid item xs={6}>
             <Typography sx={LabelStyle}>Last Name</Typography>
-            <TextField fullWidth name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Enter last name" error={errors.lastName} helperText={errors.lastName && "Required"} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', height: '45px' } }} />
+            <TextField fullWidth name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Enter last name" error={!!errors.lastName} helperText={errors.lastName} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', height: '45px' } }} />
           </Grid>
 
-          {/* Email */}
-          <Grid item xs={6} onMouseEnter={() => handleHover('email')}>
+          <Grid item xs={6}>
             <Typography sx={LabelStyle}>Email Address</Typography>
-            <TextField fullWidth name="email" value={formData.email} onChange={handleChange} placeholder="Enter email address" error={errors.email} helperText={errors.email && "Required"} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', height: '45px' } }} />
+            <TextField fullWidth name="email" value={formData.email} onChange={handleChange} placeholder="Enter email address" error={!!errors.email} helperText={errors.email} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', height: '45px' } }} />
           </Grid>
 
-          {/* Contact */}
-          <Grid item xs={6} onMouseEnter={() => handleHover('number')}>
+          <Grid item xs={6}>
             <Typography sx={LabelStyle}>Contact Number</Typography>
-            <TextField fullWidth name="number" value={formData.number} onChange={handleChange} placeholder="Enter contact number" error={errors.number} helperText={errors.number && "Required"} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', height: '45px' } }} />
+            <Box sx={{
+              position: 'relative',
+              '& .react-tel-input .form-control': {
+                width: '100%', height: '45px', borderRadius: '8px',
+                borderColor: !!errors.number ? '#d32f2f !important' : 'rgba(0, 0, 0, 0.23)'
+              },
+              '& .react-tel-input .flag-dropdown': {
+                borderRadius: '8px 0 0 8px', height: '45px',
+                borderColor: !!errors.number ? '#d32f2f !important' : 'rgba(0, 0, 0, 0.23)',
+                backgroundColor: 'transparent'
+              }
+            }}>
+              <PhoneInput
+                country={'in'}
+                placeholder="Enter phone number"
+                value={formData.fullNumber?.replace('+', '') || ''}
+                onChange={handlePhoneChange}
+                enableSearch={true}
+                dropdownStyle={{ zIndex: 2000 }}
+              />
+              {errors.number && <Typography sx={{ color: '#d32f2f', fontSize: '0.75rem', mt: 0.5, ml: 2 }}>{errors.number}</Typography>}
+            </Box>
           </Grid>
 
-          {/* Currency */}
-          <Grid item xs={6} onMouseEnter={() => handleHover('currency')}>
+          <Grid item xs={6}>
             <Typography sx={LabelStyle}>Currency</Typography>
-            <FormControl fullWidth error={errors.currency}>
-              <Select name="currency" value={formData.currency} onChange={handleChange} sx={{ borderRadius: '8px', height: '45px' }}>
+            <FormControl fullWidth error={!!errors.currency}>
+              <Select name="currency" value={formData.currency} onChange={handleChange} displayEmpty sx={{ borderRadius: '8px', height: '45px' }}>
+                <MenuItem value="" disabled>Select Currency</MenuItem>
                 <MenuItem value="USD">USD</MenuItem>
                 <MenuItem value="EUR">EUR</MenuItem>
                 <MenuItem value="TRY">TRY</MenuItem>
               </Select>
-              {errors.currency && <FormHelperText>Required</FormHelperText>}
+              {errors.currency && <FormHelperText>{errors.currency}</FormHelperText>}
             </FormControl>
           </Grid>
 
-          {/* Language */}
-          <Grid item xs={6} onMouseEnter={() => handleHover('language')}>
+          <Grid item xs={6}>
             <Typography sx={LabelStyle}>Language</Typography>
-            <FormControl fullWidth error={errors.language}>
-              <Select name="language" value={formData.language} onChange={handleChange} sx={{ borderRadius: '8px', height: '45px' }}>
+            <FormControl fullWidth error={!!errors.language}>
+              <Select name="language" value={formData.language} onChange={handleChange} displayEmpty sx={{ borderRadius: '8px', height: '45px' }}>
+                <MenuItem value="" disabled>Select Language</MenuItem>
                 <MenuItem value="German">German</MenuItem>
                 <MenuItem value="English">English</MenuItem>
                 <MenuItem value="Turkish">Turkish</MenuItem>
               </Select>
-              {errors.language && <FormHelperText>Required</FormHelperText>}
+              {errors.language && <FormHelperText>{errors.language}</FormHelperText>}
             </FormControl>
           </Grid>
         </Grid>

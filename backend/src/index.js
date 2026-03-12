@@ -29,10 +29,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 // --- 2. MULTER & STATIC FILES SETUP ---
-// Moves up from 'src' to find the root 'public' folder
 const uploadPath = path.join(__dirname, "..", "public", "uploads", "profiles");
 
-// Ensure upload directory exists
 if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
 }
@@ -43,15 +41,13 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-
-// Serve static files from the root public folder
 app.use("/", express.static(path.join(__dirname, "..", "public")));
 
 // --- 3. DATABASE CONNECTION ---
 const connectdb = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log(" ✅ Connected Successfully Mongodb via .env");
+    console.log(" ✅ Connected Successfully Mongodb");
   } catch (err) {
     console.error(" ❌ Mongodb Connection Error", err.message);
   }
@@ -59,12 +55,9 @@ const connectdb = async () => {
 connectdb();
 
 // --- 4. AUTH & USER PROFILE APIs ---
-
-// Use external route files
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", userRoutes);
 
-// Update logged-in user's email or password
 app.put("/api/profile/update-profile", verifyToken, async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -91,31 +84,43 @@ app.put("/api/profile/update-profile", verifyToken, async (req, res) => {
     }
 });
 
-// --- 5. CUSTOMER MANAGEMENT APIs ---
+// --- 5. CUSTOMER MANAGEMENT APIs (FIXED DUPLICATE CHECK) ---
 
-// Create a new customer with profile image upload
 app.post("/api/customers", [verifyToken, upload.single('profileImage')], async (req, res) => {
   try {
     const { firstName, lastName, email, number, currency, language } = req.body;
-    const imagePath = req.file ? `/uploads/profiles/${req.file.filename}` : null;
+
+    // Normalize data: remove spaces and lowercase email
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanContact = number.trim(); // keeps "+91 9876543210", just removes leading/trailing spaces
+
+    // MANUAL DUPLICATE CHECK (Guarantees no direct entry)
+    const existing = await Customer.findOne({ 
+      $or: [{ email: cleanEmail }, { contact: cleanContact }] 
+    });
+
+    if (existing) {
+      const field = existing.email === cleanEmail ? "Email" : "Phone number";
+      return res.status(400).json({ message: `${field} is already registered.` });
+    }
 
     const newCustomer = new Customer({
       name: `${firstName} ${lastName}`.trim(),
-      email,
-      contact: number,
+      email: cleanEmail,
+      contact: cleanContact,
       currency,
       language,
-      profileImage: imagePath
+      profileImage: req.file ? `/uploads/profiles/${req.file.filename}` : null
     });
 
     await newCustomer.save();
-    res.status(201).json({ success: true, data: newCustomer });
+    res.status(201).json({ success: true, message: "Customer added successfully!" });
   } catch (err) {
-    res.status(400).json({ message: "Error adding customer", error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-// Fetch all customers sorted by newest first
 app.get("/api/customers", verifyToken, async (req, res) => {
   try {
     const customers = await Customer.find().sort({ createdAt: -1 });
@@ -125,17 +130,52 @@ app.get("/api/customers", verifyToken, async (req, res) => {
   }
 });
 
-// DELETE Customer
-app.delete("/api/customers/:id", verifyToken, async (req, res) => {
+app.put("/api/customers/:id", [verifyToken, upload.single('profileImage')], async (req, res) => {
   try {
-    await Customer.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Deleted" });
+    const { firstName, lastName, email, number, currency, language } = req.body;
+    
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanContact = number.trim();
+
+    const emailDuplicate = await Customer.findOne({ _id: { $ne: req.params.id }, email: cleanEmail });
+    const phoneDuplicate = await Customer.findOne({ _id: { $ne: req.params.id }, contact: cleanContact });
+
+    if (emailDuplicate && phoneDuplicate) return res.status(400).json({ message: "Email and Phone number are already registered." });
+    if (emailDuplicate) return res.status(400).json({ message: "Email is already registered." });
+    if (phoneDuplicate) return res.status(400).json({ message: "Phone number is already registered." });
+
+    const updateData = {
+      name: `${firstName} ${lastName}`.trim(),
+      email: cleanEmail,
+      contact: cleanContact,
+      currency,
+      language
+    };
+
+    if (req.file) {
+      updateData.profileImage = `/uploads/profiles/${req.file.filename}`;
+    }
+
+    const updated = await Customer.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    if (!updated) return res.status(404).json({ message: "Customer not found" });
+    
+    res.status(200).json(updated);
   } catch (err) {
-    res.status(500).json(err);
+    console.error(err);
+    res.status(500).json({ message: "Update failed" });
   }
 });
 
-// PATCH Status Toggle
+app.delete("/api/customers/:id", verifyToken, async (req, res) => {
+  try {
+    const deleted = await Customer.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Customer not found" });
+    res.status(200).json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting customer" });
+  }
+});
+
 app.patch("/api/customers/:id/status", verifyToken, async (req, res) => {
   try {
     const { status } = req.body;
@@ -146,52 +186,8 @@ app.patch("/api/customers/:id/status", verifyToken, async (req, res) => {
   }
 });
 
-// Update Customer API
-app.put("/api/customers/:id", [verifyToken, upload.single('profileImage')], async (req, res) => {
-  try {
-    const { firstName, lastName, email, number, currency, language } = req.body;
-    
-    const updateData = {
-      name: `${firstName} ${lastName}`.trim(),
-      email,
-      contact: number,
-      currency,
-      language
-    };
-
-    // If a new file was uploaded, update the image path
-    if (req.file) {
-      updateData.profileImage = `/uploads/profiles/${req.file.filename}`;
-    }
-
-    const updatedCustomer = await Customer.findByIdAndUpdate(
-      req.params.id, 
-      updateData, 
-      { new: true }
-    );
-
-    if (!updatedCustomer) return res.status(404).json({ message: "Customer not found" });
-    res.status(200).json(updatedCustomer);
-  } catch (err) {
-    res.status(400).json({ message: "Update failed", error: err.message });
-  }
-});
-
-
-// Delete a customer by ID
-app.delete("/api/customers/:id", verifyToken, async (req, res) => {
-  try {
-    const deleted = await Customer.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Customer not found" });
-    res.status(200).json({ message: "Customer deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Error deleting customer" });
-  }
-});
-
 // --- 6. USER ADMINISTRATION APIs ---
 
-// Get list of all registered users
 app.get("/api/users", verifyToken, async (req, res) => {
   try {
     const users = await User.find();
@@ -201,7 +197,6 @@ app.get("/api/users", verifyToken, async (req, res) => {
   }
 });
 
-// Manually add a new user with password hashing
 app.post("/api/users", async (req, res) => {
   try {
     const { password, ...otherData } = req.body;
@@ -218,18 +213,15 @@ app.post("/api/users", async (req, res) => {
   }
 });
 
-// Delete a user from the administration table
 app.delete("/api/users/:id", async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
-    if (!deletedUser) return res.status(404).json({ message: "User not found" });
-    res.status(200).json({ message: "User deleted successfully" });
+    await User.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "User deleted" });
   } catch (err) {
-    res.status(500).json({ message: "Error deleting user" });
+    res.status(500).json({ message: "Error" });
   }
 });
 
-// Update user details and hash password if updated
 app.put("/api/users/:id", async (req, res) => {
   try {
     const { password, ...updateData } = req.body;
@@ -238,7 +230,6 @@ app.put("/api/users/:id", async (req, res) => {
       updateData.password = await bcrypt.hash(password, salt);
     }
     const updatedUser = await User.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    if (!updatedUser) return res.status(404).json({ message: "User not found" });
     res.status(200).json(updatedUser);
   } catch (err) {
     res.status(400).json({ message: "Update failed" });
@@ -247,25 +238,22 @@ app.put("/api/users/:id", async (req, res) => {
 
 // --- 7. PRODUCT & ORDER APIs ---
 
-// Fetch products with search, category filter, and pagination
 app.get("/api/Product", async (req, res) => {
   try {
     const { search, category, page = 1 } = req.query;
     const limit = 5; 
-    const skip = (page - 1) * limit;
     let query = {};
     if (search) query.name = { $regex: search, $options: "i" };
     if (category && category !== "All") query.category = category;
 
     const totalCount = await Product.countDocuments(query);
-    const products = await Product.find(query).limit(limit).skip(skip);
+    const products = await Product.find(query).limit(limit).skip((page - 1) * limit);
     res.json({ products, totalPages: Math.ceil(totalCount / limit) });
   } catch (err) {
     res.status(500).json({ message: "Error fetching products" });
   }
 });
 
-// Fetch all orders for the dashboard
 app.get("/api/orders", verifyToken, async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
@@ -275,12 +263,10 @@ app.get("/api/orders", verifyToken, async (req, res) => {
   }
 });
 
-// Update order status
 app.put("/api/orders/:id", verifyToken, async (req, res) => {
   try {
-    const updateOrder = await Order.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
-    if (!updateOrder) return res.status(404).json({ message: "Order not found" });
-    res.status(200).json(updateOrder);
+    await Order.findByIdAndUpdate(req.params.id, { status: req.body.status });
+    res.status(200).json({ message: "Success" });
   } catch (err) {
     res.status(400).json({ message: "Update failed" });
   }

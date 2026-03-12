@@ -3,6 +3,8 @@ import React, { useState, useMemo } from 'react'
 import axios from "axios"
 import { Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Box, IconButton, TextField, MenuItem, Select, Button, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions, Avatar } from '@mui/material'
 
+
+
 // FIX 1: Added onStatusToggle to the props destructuring
 const CustomerList = ({ customers, onAction, onDelete, onStatusToggle }) => {
   const [search, setSearch] = useState('')
@@ -17,12 +19,12 @@ const CustomerList = ({ customers, onAction, onDelete, onStatusToggle }) => {
       const name = c.name ? c.name.toLowerCase() : '';
       const email = c.email ? c.email.toLowerCase() : '';
       const matchesSearch = name.includes(search.toLowerCase()) || email.includes(search.toLowerCase());
-      
+
       // FIX 2: Corrected status filtering logic to match boolean status
-      const matchesStatus = statusFilter === 'all' 
-        ? true 
+      const matchesStatus = statusFilter === 'all'
+        ? true
         : (statusFilter === 'active' ? c.status === true : c.status === false);
-        
+
       return matchesSearch && matchesStatus;
     })
   }, [search, statusFilter, customers])
@@ -84,12 +86,18 @@ const CustomerList = ({ customers, onAction, onDelete, onStatusToggle }) => {
                   </TableCell>
                   <TableCell sx={{ fontWeight: 500 }}>{row.name}</TableCell>
                   <TableCell>{row.email}</TableCell>
-                  <TableCell>{row.contact || row.number}</TableCell>
-                  
+
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                    {row.countryCode && row.number
+                      ? `${row.countryCode} ${row.number}`
+                      : row.contact || "-"
+                    }
+                  </TableCell>
+
                   {/* FIX 3: Linked the Toggle work to the IconButton click */}
                   <TableCell>
                     <IconButton
-                      onClick={() => onStatusToggle(row._id, row.status)} 
+                      onClick={() => onStatusToggle(row._id, row.status)}
                       sx={{
                         p: 0,
                         color: row.status ? '#00cfd5' : '#ccc',
@@ -106,7 +114,7 @@ const CustomerList = ({ customers, onAction, onDelete, onStatusToggle }) => {
                           style={{ transition: 'all 0.3s ease' }}
                         />
                         <circle
-                          cx={row.status ? 17 : 7} 
+                          cx={row.status ? 17 : 7}
                           cy="7"
                           r="5"
                           fill={row.status ? "#fff" : "currentColor"}

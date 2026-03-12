@@ -17,6 +17,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@dvij-infotech/react-phone-input-2-country-sort": "^2.15.4",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -40,7 +41,8 @@
     "react-hot-toast": "^2.6.0",
     "react-perfect-scrollbar": "^1.5.8",
     "react-use": "^17.5.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.218",

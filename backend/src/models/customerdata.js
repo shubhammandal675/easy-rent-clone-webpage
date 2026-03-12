@@ -13,7 +13,8 @@ const CustomerDataSchema = new mongoose.Schema(
       lowercase: true,
     },
     contact: {
-      type: Number,
+      type: String,
+      unique:true,
       required: true,
     },
     currency: {
